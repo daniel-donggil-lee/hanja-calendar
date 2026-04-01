@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>한문달력 작업 가이드</title>
+<style>
+/* === 공통 리셋 & 기본 === */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; background: #f5f5f5; color: #222; line-height: 1.6; }
+
+/* === 공통 헤더 === */
+.main-hd {
+  background: #0d1b3e;
+  color: white;
+  padding: 32px 40px 28px;
+}
+.main-hd h1 {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.main-hd .sub {
+  font-size: 13px;
+  color: #8fa8d8;
+}
+
+/* === 섹션 전환 탭 === */
+.section-tabs {
+  background: #1a2a5e;
+  display: flex;
+  gap: 0;
+  padding: 0 40px;
+  border-bottom: 2px solid #0d1b3e;
+}
+.section-tab {
+  padding: 14px 28px;
+  color: #8fa8d8;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.section-tab:hover {
+  color: #c8d8f8;
+}
+.section-tab.active {
+  color: #ffffff;
+  border-bottom-color: #4a9eff;
+}
+
+/* === 섹션 래퍼 === */
+.section-content {
+  display: none;
+}
+.section-content.active {
+  display: block;
+}
+
+/* === 파일1(주제검토) 스코핑 CSS === */
+.s1 .hd { background:#1a1a2e; color:white; padding:28px 40px; }.s1 .hd h1 { font-size:22px; font-weight:700; }.s1 .hd p { font-size:13px; color:#aaa; margin-top:5px; }.s1 .sbar { background:white; padding:14px 40px; display:flex; gap:24px; border-bottom:1px solid #e0e0e0; flex-wrap:wrap; align-items:center; }.s1 .bdg { display:inline-block; padding:3px 11px; border-radius:20px; font-weight:600; font-size:12px; }.s1 .bs {background:#d4edda;color:#155724;}.s1 .bw {background:#fff3cd;color:#856404;}.s1 .bp {background:#f8d7da;color:#721c24;}.s1 .tabs { display:flex; background:white; padding:0 40px; border-bottom:2px solid #dee2e6; flex-wrap:wrap; }.s1 .tab { padding:10px 14px; cursor:pointer; font-size:12px; border-bottom:3px solid transparent; color:#666; white-space:nowrap; }.s1 .tab.active { color:#1a1a2e; border-bottom-color:#1a1a2e; font-weight:700; }.s1 .tab.hp { color:#c0392b; }.s1 .tab.hp.active { border-bottom-color:#c0392b; }.s1 .content { padding:28px 40px; }.s1 .ms { display:none; }.s1 .ms.active { display:block; }.s1 .mhdr { margin-bottom:18px; }.s1 .mhdr h2 { font-size:18px; font-weight:700; }.s1 .mhdr .sub { font-size:13px; color:#666; margin-top:3px; }.s1 .mstats { display:flex; gap:10px; margin-top:8px; }.s1 .mst { font-size:11px; padding:3px 9px; border-radius:10px; }.s1 .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:10px; margin-bottom:20px; }.s1 .card { background:white; border-radius:7px; padding:13px 14px; border-left:4px solid #ccc; position:relative; }.s1 .card.strong {border-left-color:#28a745;}.s1 .card.weak {border-left-color:#ffc107;background:#fffdf0;}.s1 .card.poor {border-left-color:#dc3545;background:#fff5f5;}.s1 .cmain { display:flex; align-items:center; gap:10px; }.s1 .chj { font-size:26px; font-weight:700; min-width:34px; }.s1 .cinfo { font-size:12px; color:#555; }.s1 .crd { font-size:11px; color:#999; }.s1 .cbdg { position:absolute; top:9px; right:10px; font-size:15px; }.s1 .rtag { font-size:10px; background:#e8f4fd; color:#1a7abf; padding:2px 6px; border-radius:8px; margin-top:3px; display:inline-block; }.s1 .pnote { margin-top:8px; padding:7px 9px; background:#ffeef0; border-radius:5px; font-size:12px; color:#c0392b; line-height:1.5; }.s1 .wnote { margin-top:8px; padding:7px 9px; background:#fffaed; border-radius:5px; font-size:12px; color:#856404; line-height:1.5; }.s1 .alt-pool { margin-top:20px; padding:14px 16px; background:white; border-radius:8px; border:1px solid #c8e3f7; }.s1 .ap-title { font-size:13px; font-weight:700; color:#1a5276; margin-bottom:6px; }.s1 .ap-desc { font-size:11px; color:#777; margin-bottom:12px; }.s1 .ap-chips { display:flex; flex-wrap:wrap; gap:8px; }.s1 .ap-chip { display:flex; align-items:flex-start; gap:8px; padding:8px 12px; background:#f0f7ff; border:1px solid #bee3f8; border-radius:8px; min-width:180px; flex:1; }.s1 .ap-hj { font-size:24px; font-weight:700; color:#1a1a2e; line-height:1; min-width:28px; }.s1 .ap-info { flex:1; }.s1 .ap-rd { font-size:12px; color:#333; font-weight:600; }.s1 .ap-why { font-size:11px; color:#555; margin-top:2px; line-height:1.4; }.s1 .no-alt-pool { margin-top:20px; padding:12px 14px; background:#f5f5f5; border-radius:8px; border:1px solid #ddd; font-size:12px; color:#888; }.s1 .atbl-wrap { margin-top:24px; }.s1 .atbl-wrap h3 { font-size:14px; font-weight:700; margin-bottom:8px; color:#333; }.s1 .atbl { width:100%; border-collapse:collapse; background:white; border-radius:7px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.08); }.s1 .atbl th { background:#f0f0f0; padding:9px 12px; font-size:12px; text-align:left; font-weight:600; }.s1 .atbl td { padding:9px 12px; font-size:12px; border-top:1px solid #f0f0f0; vertical-align:middle; }.s1 .foot { margin-top:36px; padding:15px 18px; background:#f0f4ff; border-radius:7px; font-size:12px; color:#555; line-height:1.8; }
+
+/* === 파일2(검증리포트) 스코핑 CSS === */
+.s2 *, .s2 *::before, .s2 *::after { box-sizing: border-box; margin: 0; padding: 0; }.s2 .wrap { max-width: 1100px; margin: 0 auto; padding: 32px 24px 80px; }.s2 /* Header */
+  .report-header { border-bottom: 2px solid #1a1a1a; padding-bottom: 20px; margin-bottom: 32px; }.s2 .report-header h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.5px; }.s2 .report-header .meta { font-size: 13px; color: #666; margin-top: 6px; }.s2 /* Summary Banner */
+  .summary-banner { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 40px; }.s2 .banner-item { flex: 1; min-width: 180px; border-radius: 10px; padding: 18px 20px; background: #f7f8fa; border: 1px solid #e0e0e0; }.s2 .banner-item .label { font-size: 12px; color: #888; font-weight: 600; letter-spacing: 0.3px; text-transform: uppercase; }.s2 .banner-item .value { font-size: 28px; font-weight: 700; margin-top: 4px; color: #1a1a1a; }.s2 .banner-item .badge { display: inline-block; font-size: 12px; background: #e8f5e9; color: #2e7d32; border-radius: 12px; padding: 2px 10px; margin-top: 6px; font-weight: 600; }.s2 /* Section */
+  .section { margin-bottom: 52px; }.s2 .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #e0e0e0; display: flex; align-items: center; gap: 8px; }.s2 .section-title .sec-num { display: inline-block; width: 26px; height: 26px; background: #1a1a1a; color: #fff; border-radius: 50%; font-size: 13px; text-align: center; line-height: 26px; font-weight: 700; }.s2 /* Table */
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }.s2 th { background: #f0f0f0; padding: 10px 12px; text-align: left; font-weight: 700; border-bottom: 2px solid #ccc; }.s2 td { padding: 8px 12px; border-bottom: 1px solid #eeeeee; vertical-align: middle; }.s2 .month-header-row td { background: #f5f5f5; font-weight: 700; color: #555; font-size: 13px; padding: 6px 12px; border-bottom: 1px solid #ddd; }.s2 .bg-replaced { background: #e8f0fe; }.s2 .hanja-old { color: #c62828; font-weight: 600; }.s2 .hanja-new { color: #1565c0; font-weight: 700; }.s2 .note-cell { font-size: 12px; color: #666; }.s2 /* Verification cards */
+  .verif-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }.s2 .verif-card { border-radius: 10px; padding: 20px; border: 1px solid #e0e0e0; }.s2 .verif-card.ok { background: #e8f5e9; border-color: #a5d6a7; }.s2 .verif-card .verif-icon { font-size: 28px; margin-bottom: 8px; }.s2 .verif-card .verif-label { font-size: 13px; color: #555; font-weight: 600; }.s2 .verif-card .verif-val { font-size: 20px; font-weight: 700; color: #2e7d32; margin-top: 4px; }.s2 /* Accordion */
+  .month-accordion { border: 1px solid #e0e0e0; border-radius: 8px; margin-bottom: 10px; overflow: hidden; }.s2 .month-accordion summary { padding: 12px 18px; cursor: pointer; font-weight: 700; font-size: 14px; background: #fafafa; user-select: none; list-style: none; display: flex; align-items: center; gap: 6px; }.s2 .month-accordion summary::-webkit-details-marker { display: none; }.s2 .month-accordion summary::before { content: '▶'; font-size: 11px; color: #aaa; transition: transform 0.15s; }.s2 .month-accordion[open] summary::before { transform: rotate(90deg); }.s2 .month-accordion .day-count { font-weight: 400; color: #888; font-size: 13px; }.s2 .char-grid { padding: 16px 18px; display: flex; flex-wrap: wrap; gap: 10px; background: #fff; }.s2 .char-item { display: inline-flex; flex-direction: column; align-items: center; min-width: 52px; padding: 6px 8px; border-radius: 6px; border: 1px solid #eee; font-size: 20px; cursor: default; background: #fafafa; }.s2 .char-item.char-replaced { background: #e8f0fe; border-color: #90caf9; color: #1565c0; font-weight: 700; }.s2 .char-item.char-replaced { background: #fff8e1; border-color: #ffe082; color: #e65100; font-weight: 700; }.s2 .char-reading { font-size: 10px; color: #888; margin-top: 2px; font-weight: 400; white-space: nowrap; }.s2 .char-item.char-replaced .char-reading { color: #1565c0; }.s2 .char-item.char-replaced .char-reading { color: #e65100; }.s2 /* Legend */
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 16px; font-size: 13px; }.s2 .legend-item { display: flex; align-items: center; gap: 6px; }.s2 .legend-box { width: 16px; height: 16px; border-radius: 3px; border: 1px solid #ccc; }.s2 .lb-replaced { background: #e8f0fe; border-color: #90caf9; }.s2 .lb-shodul { background: #fffde7; border-color: #ffe082; }
+
+
+/* === 파일2 wrap 패딩 보정 === */
+.s2 .wrap {
+  padding-top: 24px;
+}
+</style>
+</head>
+<body>
+
+<!-- 공통 헤더 -->
+<div class="main-hd">
+  <h1>한문달력 작업 가이드</h1>
+  <div class="sub">2026-04-01 &nbsp;·&nbsp; 총 135건 교체 완료</div>
+</div>
+
+<!-- 섹션 전환 탭 -->
+<div class="section-tabs">
+  <button class="section-tab active" onclick="showSection(2)">✅ 중복제거 검증리포트</button>
+  <button class="section-tab" onclick="showSection(1)">📋 주제 적합성 검토</button>
+</div>
+
+<!-- 섹션1: 주제 적합성 검토 -->
+<div class="section-content s1" id="sec1">
+<div style="background:#fffbf0;border-bottom:1px solid #f0e0b0;padding:24px 40px;">
+<div style="max-width:860px">
+<div style="font-size:15px;font-weight:700;color:#7d5a00;margin-bottom:14px">📋 이 파일은 어떻게 만들어졌나요?</div>
+<div style="font-size:13px;color:#5a4200;line-height:1.9">
+<strong>① 원본 작업</strong><br>
+이은경 작가님이 작성한 한문달력 원고(Google Sheets)에는 12개월 × 29~31자, 총 366개의 한자가 있었습니다.<br>
+이 중 여러 달에 걸쳐 <strong>중복 등장하는 한자 91개</strong>와 <strong>중학교 한문 교육용 기초 한자 900자 범위 밖 한자 44개</strong>를 자동으로 찾아냈습니다.<br><br>
+
+<strong>② 교체 작업</strong><br>
+중복·범위 외 한자 총 <strong>135개</strong>를 900자 범위 내 미사용 한자로 교체했습니다.<br>
+이때 <strong>첫 등장 월 우선 원칙</strong>을 적용했습니다 — 같은 한자가 여러 달에 있으면 가장 앞 달(1월 우선)에만 남기고, 나머지 달의 슬롯을 새 한자로 채웠습니다.<br>
+또한 일·월·년·산·강·꽃·풀·숲·봄 같이 <strong>초등 수준에 해당하는 한자 9개</strong>도 중등 수준으로 별도 교체했습니다.<br><br>
+
+<strong>③ 이 파일의 목적</strong><br>
+자동 교체는 <em>"중복 제거"와 "수준"</em>만 처리할 수 있고, <strong>각 달의 테마와 의미적으로 잘 맞는지</strong>는 이은경 작가님이 직접 판단해야 합니다.<br>
+이 파일은 그 판단을 돕기 위해 월별로 검토 필요 항목을 정리하고, 교체 가능한 대안 한자를 제시합니다.
+</div>
+
+<div style="margin-top:20px;padding:14px 16px;background:white;border-radius:8px;border:1px solid #e8d9a0">
+<div style="font-size:13px;font-weight:700;color:#7d5a00;margin-bottom:10px">🔴 색상 기준</div>
+<div style="display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:#444">
+  <div><span style="display:inline-block;width:12px;height:12px;background:#28a745;border-radius:2px;margin-right:5px;vertical-align:middle"></span><strong>초록(✅ 강)</strong> — 이 달 테마와 직접 연결됩니다. 그대로 두세요.</div>
+  <div><span style="display:inline-block;width:12px;height:12px;background:#ffc107;border-radius:2px;margin-right:5px;vertical-align:middle"></span><strong>주황(🔶 약)</strong> — 간접적으로 연관됩니다. 유지해도 되고, 더 맞는 게 있으면 교체해도 됩니다.</div>
+  <div><span style="display:inline-block;width:12px;height:12px;background:#dc3545;border-radius:2px;margin-right:5px;vertical-align:middle"></span><strong>빨강(❌ 부적합)</strong> — 이 달 테마와 연결이 어렵습니다. 교체를 권장합니다.</div>
+</div>
+</div>
+
+<div style="margin-top:14px;padding:14px 16px;background:white;border-radius:8px;border:1px solid #e8d9a0">
+<div style="font-size:13px;font-weight:700;color:#7d5a00;margin-bottom:10px">✏️ 수정을 원할 때는 이렇게 알려주세요</div>
+<div style="font-size:12px;color:#444;line-height:1.9">
+  <strong>교체 요청 예시:</strong><br>
+  &nbsp;&nbsp;• "8월 夕을 我로 바꿔줘"<br>
+  &nbsp;&nbsp;• "10월 冊을 謝로, 紙를 訪으로 바꿔줘"<br>
+  &nbsp;&nbsp;• "9월에 香·色 대신 넣을 만한 다른 후보 더 찾아줘"<br><br>
+  <strong>유지 결정 예시:</strong><br>
+  &nbsp;&nbsp;• "8월 忘은 '잊음을 성찰'로 해석할 수 있으니 그대로 둘게"<br>
+  &nbsp;&nbsp;• "11월 세(世)는 '세상에 대한 책임'으로 쓸 거야"<br><br>
+  교체를 요청하시면 Google Sheets 작업본에 바로 반영하고, 업데이트된 파일을 다시 보내드립니다.
+</div>
+</div>
+</div>
+</div>
+<div class="sbar"><span class="bdg bs">✅ 강 334자</span> 테마 직결 &nbsp; <span class="bdg bw">🔶 약 16자</span> 간접 연관 &nbsp; <span class="bdg bp">❌ 부적합 16자</span> 교체 검토 &nbsp; <span style="color:#999">총 366슬롯 · 중복 0 · 900자 범위 ✅</span></div>
+<div class="tabs">
+<div class="tab" onclick="showGuideMonth(0)" id="t0">1월 배움</div>
+<div class="tab" onclick="showGuideMonth(1)" id="t1">2월 성실</div>
+<div class="tab" onclick="showGuideMonth(2)" id="t2">3월 정직</div>
+<div class="tab" onclick="showGuideMonth(3)" id="t3">4월 존중</div>
+<div class="tab" onclick="showGuideMonth(4)" id="t4">5월 공감</div>
+<div class="tab" onclick="showGuideMonth(5)" id="t5">6월 도전</div>
+<div class="tab" onclick="showGuideMonth(6)" id="t6">7월 공정</div>
+<div class="tab hp" onclick="showGuideMonth(7)" id="t7">8월 성찰 <small style="color:#c0392b">❌5</small></div>
+<div class="tab hp" onclick="showGuideMonth(8)" id="t8">9월 다양성 <small style="color:#c0392b">❌2</small></div>
+<div class="tab hp" onclick="showGuideMonth(9)" id="t9">10월 소통 <small style="color:#c0392b">❌5</small></div>
+<div class="tab hp" onclick="showGuideMonth(10)" id="t10">11월 책임 <small style="color:#c0392b">❌2</small></div>
+<div class="tab hp" onclick="showGuideMonth(11)" id="t11">12월 성장 <small style="color:#c0392b">❌2</small></div>
+</div><div class="content">
+<div class="ms active" id="m0">
+<div class="mhdr"><h2>1월 — 배움</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 31</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 0</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">學</div><div><div class="cinfo">배울 학</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">文</div><div><div class="cinfo">글월 문</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">知</div><div><div class="cinfo">알지</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">習</div><div><div class="cinfo">익힐 습</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">敎</div><div><div class="cinfo">가르칠 교</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">校</div><div><div class="cinfo">학교 교</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">書</div><div><div class="cinfo">글 서</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">問</div><div><div class="cinfo">물을 문</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">記</div><div><div class="cinfo">기록할 기</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">讀</div><div><div class="cinfo">읽을 독</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">硏</div><div><div class="cinfo">갈 연</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">究</div><div><div class="cinfo">연구할 구</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">計</div><div><div class="cinfo">셀 계</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">考</div><div><div class="cinfo">생각할 고</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">論</div><div><div class="cinfo">논할 론</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">講</div><div><div class="cinfo">익힐 강</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">視</div><div><div class="cinfo">볼 시</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">聞</div><div><div class="cinfo">들을 문</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">語</div><div><div class="cinfo">말씀 어</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">說</div><div><div class="cinfo">말씀 설</div><div class="crd">슬롯 20</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">識</div><div><div class="cinfo">알 식</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">試</div><div><div class="cinfo">시험할 시</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">式</div><div><div class="cinfo">법 식</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">章</div><div><div class="cinfo">글 장</div><div class="crd">슬롯 24</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">筆</div><div><div class="cinfo">붓 필</div><div class="crd">슬롯 25</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">典</div><div><div class="cinfo">법 전</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">數</div><div><div class="cinfo">셀 수</div><div class="crd">슬롯 27</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">理</div><div><div class="cinfo">다스릴 리</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">解</div><div><div class="cinfo">풀 해</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">師</div><div><div class="cinfo">스승 사</div><div class="crd">슬롯 30</div><div class="rtag">🔄 覺→師 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">題</div><div><div class="cinfo">제목 제</div><div class="crd">슬롯 31</div></div></div></div>
+</div>
+</div>
+<div class="ms " id="m1">
+<div class="mhdr"><h2>2월 — 성실</h2><div class="sub">29자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 28</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 1</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">誠</div><div><div class="cinfo">정성 성</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">勤</div><div><div class="cinfo">부지런할 근</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">勞</div><div><div class="cinfo">힘쓸 로</div><div class="crd">슬롯 3</div><div class="rtag">🔄 努→勞 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">勉</div><div><div class="cinfo">힘쓸 면</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">修</div><div><div class="cinfo">닦을 수</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">練</div><div><div class="cinfo">익힐 련</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">持</div><div><div class="cinfo">가질지</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">守</div><div><div class="cinfo">지킬 수</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">常</div><div><div class="cinfo">항상 상</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">續</div><div><div class="cinfo">이을 속</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">深</div><div><div class="cinfo">깊을 심</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">固</div><div><div class="cinfo">굳을 고</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">堅</div><div><div class="cinfo">굳을 견</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">根</div><div><div class="cinfo">뿌리 근</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">久</div><div><div class="cinfo">오랠 구</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">反</div><div><div class="cinfo">돌이킬 반</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">進</div><div><div class="cinfo">나아갈 진</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">及</div><div><div class="cinfo">미칠 급</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">急</div><div><div class="cinfo">급할 급</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">給</div><div><div class="cinfo">줄 급</div><div class="crd">슬롯 20</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">承</div><div><div class="cinfo">이을 승</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">始</div><div><div class="cinfo">비로소 시</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">終</div><div><div class="cinfo">마칠 종</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">務</div><div><div class="cinfo">힘쓸 무</div><div class="crd">슬롯 24</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">服</div><div><div class="cinfo">따를 복</div><div class="crd">슬롯 25</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">力</div><div><div class="cinfo">힘 력</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">行</div><div><div class="cinfo">행할 행</div><div class="crd">슬롯 27</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">收</div><div><div class="cinfo">거둘 수</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">功</div><div><div class="cinfo">공 공</div><div class="crd">슬롯 29</div><div class="rtag">🔄 積→功 (교체됨)</div></div></div><div class="wnote">💡 공로/성과 — 성실의 결과물이나 과정보다 결과 강조로 간접 연결</div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>성실</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">篤</div><div class="ap-info"><div class="ap-rd">돈독할 독</div><div class="ap-why">진지하고 성실한 태도 — 성실의 핵심 덕목</div></div></div><div class="ap-chip"><div class="ap-hj">專</div><div class="ap-info"><div class="ap-rd">오로지 전</div><div class="ap-why">오직 한 가지에 전념 — 성실의 집중 측면</div></div></div><div class="ap-chip"><div class="ap-hj">恒</div><div class="ap-info"><div class="ap-rd">항상 항</div><div class="ap-why">항상·한결같이 — 지속적 성실함</div></div></div><div class="ap-chip"><div class="ap-hj">耕</div><div class="ap-info"><div class="ap-rd">갈 경</div><div class="ap-why">갈고 닦음/경작 — 노력하는 성실함</div></div></div><div class="ap-chip"><div class="ap-hj">致</div><div class="ap-info"><div class="ap-rd">이를 치</div><div class="ap-why">힘써 이루다 — 성실한 노력의 결실</div></div></div></div></div>
+</div>
+<div class="ms " id="m2">
+<div class="mhdr"><h2>3월 — 정직</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 30</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 1</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">正</div><div><div class="cinfo">바를 정</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">直</div><div><div class="cinfo">곧을 직</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">信</div><div><div class="cinfo">믿을 신</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">貞</div><div><div class="cinfo">곧을 정</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">淨</div><div><div class="cinfo">깨끗할 정</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">是</div><div><div class="cinfo">옳을 시</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">非</div><div><div class="cinfo">아닐 비</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">義</div><div><div class="cinfo">옳을 의</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">實</div><div><div class="cinfo">열매 실</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">名</div><div><div class="cinfo">이름 명</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">明</div><div><div class="cinfo">밝을 명</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">表</div><div><div class="cinfo">겉 표</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">現</div><div><div class="cinfo">나타날 현</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">證</div><div><div class="cinfo">증거 증</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">約</div><div><div class="cinfo">맺을 약</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">判</div><div><div class="cinfo">판단할 판</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">別</div><div><div class="cinfo">다를 별</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">眞</div><div><div class="cinfo">참 진</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">認</div><div><div class="cinfo">알 인</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">印</div><div><div class="cinfo">도장 인</div><div class="crd">슬롯 20</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">告</div><div><div class="cinfo">알릴 고</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">原</div><div><div class="cinfo">근원 원</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">由</div><div><div class="cinfo">말미암을 유</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">潔</div><div><div class="cinfo">깨끗할 결</div><div class="crd">슬롯 24</div><div class="rtag">🔄 審→潔 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">素</div><div><div class="cinfo">본디 소</div><div class="crd">슬롯 25</div><div class="rtag">🔄 檢→素 (교체됨)</div></div></div><div class="wnote">💡 본디/본질 — 꾸밈없는 본바탕으로 정직 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">察</div><div><div class="cinfo">살필 찰</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">公</div><div><div class="cinfo">공평할 공</div><div class="crd">슬롯 27</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">平</div><div><div class="cinfo">평평할 평</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">均</div><div><div class="cinfo">고를 균</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">改</div><div><div class="cinfo">고칠 개</div><div class="crd">슬롯 30</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">淸</div><div><div class="cinfo">맑을 청</div><div class="crd">슬롯 31</div><div class="rtag">🔄 廉→淸 (교체됨)</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>정직</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">坦</div><div class="ap-info"><div class="ap-rd">평탄할 탄</div><div class="ap-why">솔직하고 꾸밈없는 마음 — 정직의 핵심</div></div></div><div class="ap-chip"><div class="ap-hj">樸</div><div class="ap-info"><div class="ap-rd">순박할 박</div><div class="ap-why">꾸밈없는 소박함 — 정직한 본모습</div></div></div><div class="ap-chip"><div class="ap-hj">諍</div><div class="ap-info"><div class="ap-rd">간할 쟁</div><div class="ap-why">직간하다 — 진실을 말하는 정직한 행위</div></div></div><div class="ap-chip"><div class="ap-hj">辨</div><div class="ap-info"><div class="ap-rd">분변할 변</div><div class="ap-why">분명히 가리다 — 정직하게 판별함</div></div></div><div class="ap-chip"><div class="ap-hj">核</div><div class="ap-info"><div class="ap-rd">씨 핵</div><div class="ap-why">핵심/본질에 충실 — 겉치레 없는 정직</div></div></div></div></div>
+</div>
+<div class="ms " id="m3">
+<div class="mhdr"><h2>4월 — 존중</h2><div class="sub">30자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 30</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 0</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">尊</div><div><div class="cinfo">높일 존</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">敬</div><div><div class="cinfo">공경할 경</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">禮</div><div><div class="cinfo">예도 례</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">仁</div><div><div class="cinfo">어질 인</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">德</div><div><div class="cinfo">덕 덕</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">愛</div><div><div class="cinfo">사랑 애</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">和</div><div><div class="cinfo">화목할 화</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">讓</div><div><div class="cinfo">사양할 양</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">先</div><div><div class="cinfo">먼저 선</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">善</div><div><div class="cinfo">착할 선</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">美</div><div><div class="cinfo">아름다울 미</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">親</div><div><div class="cinfo">친할 친</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">孝</div><div><div class="cinfo">효도 효</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">效</div><div><div class="cinfo">본받을 효</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">惠</div><div><div class="cinfo">은혜 혜</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">恩</div><div><div class="cinfo">은혜 은</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">賢</div><div><div class="cinfo">어질 현</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">協</div><div><div class="cinfo">도울 협</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">順</div><div><div class="cinfo">순할 순</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">淑</div><div><div class="cinfo">맑을 숙</div><div class="crd">슬롯 20</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">柔</div><div><div class="cinfo">부드러울 유</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">崇</div><div><div class="cinfo">높을 숭</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">待</div><div><div class="cinfo">기다릴 대</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">對</div><div><div class="cinfo">대할 대</div><div class="crd">슬롯 24</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">接</div><div><div class="cinfo">이을 접</div><div class="crd">슬롯 25</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">交</div><div><div class="cinfo">사귈 교</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">會</div><div><div class="cinfo">모일 회</div><div class="crd">슬롯 27</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">集</div><div><div class="cinfo">모일 집</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">友</div><div><div class="cinfo">벗 우</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">奉</div><div><div class="cinfo">받들 봉</div><div class="crd">슬롯 30</div><div class="rtag">🔄 配→奉 (교체됨)</div></div></div></div>
+</div>
+</div>
+<div class="ms " id="m4">
+<div class="mhdr"><h2>5월 — 공감</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 27</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 3</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 1</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">共</div><div><div class="cinfo">함께 공</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">感</div><div><div class="cinfo">느낄 감</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">情</div><div><div class="cinfo">뜻 정</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">心</div><div><div class="cinfo">마음 심</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">意</div><div><div class="cinfo">뜻 의</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">思</div><div><div class="cinfo">생각 사</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">悲</div><div><div class="cinfo">슬플 비</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">喜</div><div><div class="cinfo">기쁠 희</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">憂</div><div><div class="cinfo">근심 우</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">怒</div><div><div class="cinfo">성낼 노</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">哀</div><div><div class="cinfo">슬플 애</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">樂</div><div><div class="cinfo">즐거울 락</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">愁</div><div><div class="cinfo">근심 수</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">念</div><div><div class="cinfo">생각 념</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">想</div><div><div class="cinfo">생각 상</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">應</div><div><div class="cinfo">응할 응</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">與</div><div><div class="cinfo">더불 여</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">同</div><div><div class="cinfo">같을 동</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">溫</div><div><div class="cinfo">따뜻할 온</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">悅</div><div><div class="cinfo">기쁠 열</div><div class="crd">슬롯 20</div><div class="rtag">🔄 慰→悅 (교체됨)</div></div></div><div class="wnote">💡 기쁨 — 감정 공유로 공감 간접 연결 (기쁨 특정, 공감 전반과 거리)</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">遇</div><div><div class="cinfo">만날 우</div><div class="crd">슬롯 21</div><div class="rtag">🔄 聞→遇 (교체됨)</div></div></div><div class="wnote">💡 만남 — 타인과 마주침에서 공감 발생, 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">話</div><div><div class="cinfo">말씀 화</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">通</div><div><div class="cinfo">통할 통</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">傳</div><div><div class="cinfo">전할 전</div><div class="crd">슬롯 24</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">受</div><div><div class="cinfo">받을 수</div><div class="crd">슬롯 25</div><div class="rtag">🔄 恕→受 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">容</div><div><div class="cinfo">얼굴 용/받아들일 용</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">暖</div><div><div class="cinfo">따뜻할 난</div><div class="crd">슬롯 27</div><div class="rtag">🔄 寬→暖 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">忍</div><div><div class="cinfo">참을 인</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">慈</div><div><div class="cinfo">사랑할 자</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">歡</div><div><div class="cinfo">기쁠 환</div><div class="crd">슬롯 30</div><div class="rtag">🔄 惠→歡 (교체됨)</div></div></div><div class="wnote">💡 환희/기쁨 — 悅과 유사, 긍정 감정 특화로 공감 간접 연결</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">仰</div><div><div class="cinfo">우러를 앙</div><div class="crd">슬롯 31</div><div class="rtag">🔄 憐→仰 (교체됨)</div></div></div><div class="pnote">⚠️ 우러름/경외심 — 공감보다 존경·경외 계열, 주제 불일치</div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>공감</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">憐</div><div class="ap-info"><div class="ap-rd">불쌍히 여길 련</div><div class="ap-why">연민·측은지심 — 공감의 핵심 정서</div></div></div><div class="ap-chip"><div class="ap-hj">恤</div><div class="ap-info"><div class="ap-rd">불쌍히 여길 휼</div><div class="ap-why">돌보다/위로 — 타인을 공감으로 돕는 행위</div></div></div><div class="ap-chip"><div class="ap-hj">諒</div><div class="ap-info"><div class="ap-rd">헤아릴 량</div><div class="ap-why">상대를 헤아리다 — 공감적 이해</div></div></div><div class="ap-chip"><div class="ap-hj">撫</div><div class="ap-info"><div class="ap-rd">어루만질 무</div><div class="ap-why">달래다/어루만지다 — 공감의 행동 표현</div></div></div><div class="ap-chip"><div class="ap-hj">懷</div><div class="ap-info"><div class="ap-rd">품을 회</div><div class="ap-why">마음에 품다 — 타인을 마음속에 포용함</div></div></div></div></div>
+</div>
+<div class="ms " id="m5">
+<div class="mhdr"><h2>6월 — 도전</h2><div class="sub">30자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 27</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 3</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">壯</div><div><div class="cinfo">씩씩할 장</div><div class="crd">슬롯 1</div><div class="rtag">🔄 挑→壯 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">戰</div><div><div class="cinfo">싸울 전</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">勇</div><div><div class="cinfo">용기 용</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">敢</div><div><div class="cinfo">감히 감</div><div class="crd">슬롯 4</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">能</div><div><div class="cinfo">능할 능</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">起</div><div><div class="cinfo">일어날 기</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">動</div><div><div class="cinfo">움직일 동</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">勝</div><div><div class="cinfo">이길 승</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">投</div><div><div class="cinfo">던질 투</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">氣</div><div><div class="cinfo">기운 기</div><div class="crd">슬롯 10</div><div class="rtag">🔄 突→氣 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">志</div><div><div class="cinfo">뜻 지</div><div class="crd">슬롯 11</div><div class="rtag">🔄 衝→志 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">變</div><div><div class="cinfo">변할 변</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">開</div><div><div class="cinfo">열 개</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">發</div><div><div class="cinfo">필 발</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">達</div><div><div class="cinfo">통달할 달</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">登</div><div><div class="cinfo">오를 등</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">期</div><div><div class="cinfo">기약할 기</div><div class="crd">슬롯 17</div><div class="rtag">🔄 越→期 (교체됨)</div></div></div><div class="wnote">💡 기약/기대 — 목표 설정으로 도전 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">飛</div><div><div class="cinfo">날 비</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">破</div><div><div class="cinfo">깨뜨릴 파</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">擧</div><div><div class="cinfo">들 거</div><div class="crd">슬롯 20</div><div class="rtag">🔄 改→擧 (교체됨)</div></div></div><div class="wnote">💡 들다/일으키다 — 행동 개시 뉘앙스, 도전 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">競</div><div><div class="cinfo">다툴 경</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">躍</div><div><div class="cinfo">뛸 약</div><div class="crd">슬롯 22</div><div class="rtag">🔄 強→躍 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">求</div><div><div class="cinfo">구할 구</div><div class="crd">슬롯 23</div><div class="rtag">🔄 努→求 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">就</div><div><div class="cinfo">나아갈 취</div><div class="crd">슬롯 24</div><div class="rtag">🔄 進→就 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">敵</div><div><div class="cinfo">대적할 적</div><div class="crd">슬롯 25</div><div class="rtag">🔄 試→敵 (교체됨)</div></div></div><div class="wnote">💡 맞서다/대적 — 장애물 극복 맥락에서 도전 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">探</div><div><div class="cinfo">찾을 탐</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">銳</div><div><div class="cinfo">날카로울 예</div><div class="crd">슬롯 27</div><div class="rtag">🔄 創→銳 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">革</div><div><div class="cinfo">바꿀 혁</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">騰</div><div><div class="cinfo">오를 등</div><div class="crd">슬롯 29</div><div class="rtag">🔄 奮→騰 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">決</div><div><div class="cinfo">결단할 결</div><div class="crd">슬롯 30</div><div class="rtag">🔄 躍→決 ()</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>도전</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">突</div><div class="ap-info"><div class="ap-rd">돌 돌</div><div class="ap-why">돌진·돌파 — 도전의 추진력</div></div></div><div class="ap-chip"><div class="ap-hj">衝</div><div class="ap-info"><div class="ap-rd">찌를 충</div><div class="ap-why">충격으로 전진 — 도전의 강한 행동력</div></div></div><div class="ap-chip"><div class="ap-hj">奮</div><div class="ap-info"><div class="ap-rd">떨칠 분</div><div class="ap-why">분발·분투 — 도전하는 강한 의지</div></div></div><div class="ap-chip"><div class="ap-hj">越</div><div class="ap-info"><div class="ap-rd">넘을 월</div><div class="ap-why">초월·극복 — 한계를 넘는 도전</div></div></div><div class="ap-chip"><div class="ap-hj">踐</div><div class="ap-info"><div class="ap-rd">밟을 천</div><div class="ap-why">실천·행동 — 도전을 실제로 밟아나감</div></div></div></div></div>
+</div>
+<div class="ms " id="m6">
+<div class="mhdr"><h2>7월 — 공정</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 19</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 12</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 0</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">度</div><div><div class="cinfo">법도 도</div><div class="crd">슬롯 1</div><div class="rtag">🔄 公→度 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">令</div><div><div class="cinfo">명령할 령</div><div class="crd">슬롯 2</div><div class="rtag">🔄 平→令 (교체됨)</div></div></div><div class="wnote">💡 명령/법령 — 권위 계열, 공정보다 통제 강조로 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">廉</div><div><div class="cinfo">청렴할 렴</div><div class="crd">슬롯 3</div><div class="rtag">🔄 均→廉 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">統</div><div><div class="cinfo">거느릴 통</div><div class="crd">슬롯 4</div><div class="rtag">🔄 判→統 (교체됨)</div></div></div><div class="wnote">💡 통솔/거느리다 — 지배·관리 계열, 공정의 간접 맥락</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">法</div><div><div class="cinfo">법 법</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">則</div><div><div class="cinfo">법칙 칙</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">律</div><div><div class="cinfo">법 률</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">政</div><div><div class="cinfo">정사 정</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">治</div><div><div class="cinfo">다스릴 치</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">限</div><div><div class="cinfo">한정할 한</div><div class="crd">슬롯 10</div><div class="rtag">🔄 制→限 (교체됨)</div></div></div><div class="wnote">💡 한정/제한 — 공정한 경계 설정으로 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">比</div><div><div class="cinfo">견줄 비</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">節</div><div><div class="cinfo">마디 절</div><div class="crd">슬롯 12</div><div class="rtag">🔄 較→節 (교체됨)</div></div></div><div class="wnote">💡 절도/절제 — 절도 있는 행동으로 공정 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">衡</div><div><div class="cinfo">저울 형</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">量</div><div><div class="cinfo">헤아릴 량</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">例</div><div><div class="cinfo">본보기 례</div><div class="crd">슬롯 15</div><div class="rtag">🔄 準→例 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">刑</div><div><div class="cinfo">형벌 형</div><div class="crd">슬롯 16</div><div class="rtag">🔄 規→刑 (교체됨)</div></div></div><div class="wnote">💡 형벌 — 처벌이 공정의 일부이나 법 집행 특화로 간접 연결</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">罪</div><div><div class="cinfo">허물 죄</div><div class="crd">슬롯 17</div><div class="rtag">🔄 正→罪 (교체됨)</div></div></div><div class="wnote">💡 허물/죄 — 죄에 대한 공정한 판단으로 간접 연결</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">禁</div><div><div class="cinfo">금할 금</div><div class="crd">슬롯 18</div><div class="rtag">🔄 義→禁 (교체됨)</div></div></div><div class="wnote">💡 금지 — 규칙·제한으로 공정 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">賞</div><div><div class="cinfo">상줄 상</div><div class="crd">슬롯 19</div><div class="rtag">🔄 審→賞 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">嚴</div><div><div class="cinfo">엄할 엄</div><div class="crd">슬롯 20</div><div class="rtag">🔄 檢→嚴 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">誤</div><div><div class="cinfo">잘못할 오</div><div class="crd">슬롯 21</div><div class="rtag">🔄 實→誤 (교체됨)</div></div></div><div class="wnote">💡 잘못/오류 — 오류 시정이 공정의 일부, 간접 연결</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">官</div><div><div class="cinfo">벼슬 관</div><div class="crd">슬롯 22</div><div class="rtag">🔄 信→官 (교체됨)</div></div></div><div class="wnote">💡 관직/벼슬 — 공정 집행자이나 공정 자체와 거리</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">合</div><div><div class="cinfo">합할 합</div><div class="crd">슬롯 23</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">民</div><div><div class="cinfo">백성 민</div><div class="crd">슬롯 24</div><div class="rtag">🔄 約→民 (교체됨)</div></div></div><div class="wnote">💡 백성/시민 — 공정의 대상이지만 공정 자체가 아님</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">從</div><div><div class="cinfo">따를 종</div><div class="crd">슬롯 25</div><div class="rtag">🔄 協→從 (교체됨)</div></div></div><div class="wnote">💡 따르다 — 규칙 준수로 공정 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">權</div><div><div class="cinfo">권리 권</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">勸</div><div><div class="cinfo">권할 권</div><div class="crd">슬롯 27</div><div class="rtag">🔄 配→勸 (교체됨)</div></div></div><div class="wnote">💡 권하다/권고 — 성실·덕목 계열에 가깝고 공정과 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">分</div><div><div class="cinfo">나눌 분</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">等</div><div><div class="cinfo">같을 등</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">序</div><div><div class="cinfo">차례 서</div><div class="crd">슬롯 30</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">當</div><div><div class="cinfo">마땅할 당</div><div class="crd">슬롯 31</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>공정</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">允</div><div class="ap-info"><div class="ap-rd">진실로 윤</div><div class="ap-why">공정한 허가·승인 — 진실성 있는 공정</div></div></div><div class="ap-chip"><div class="ap-hj">懲</div><div class="ap-info"><div class="ap-rd">혼낼 징</div><div class="ap-why">징계·경계 — 공정한 처벌의 개념</div></div></div><div class="ap-chip"><div class="ap-hj">貫</div><div class="ap-info"><div class="ap-rd">꿸 관</div><div class="ap-why">일관성 — 공정하게 일관된 기준 적용</div></div></div><div class="ap-chip"><div class="ap-hj">析</div><div class="ap-info"><div class="ap-rd">쪼갤 석</div><div class="ap-why">명확하게 분석 — 공정한 판단의 토대</div></div></div><div class="ap-chip"><div class="ap-hj">辨</div><div class="ap-info"><div class="ap-rd">분변할 변</div><div class="ap-why">분명히 가리다 — 공정하게 구별함</div></div></div></div></div>
+</div>
+<div class="ms " id="m7">
+<div class="mhdr"><h2>8월 — 성찰</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 21</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 5</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 5</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">省</div><div><div class="cinfo">살필 성</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">看</div><div><div class="cinfo">볼 간</div><div class="crd">슬롯 2</div><div class="rtag">🔄 察→看 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">悟</div><div><div class="cinfo">깨달을 오</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">夕</div><div><div class="cinfo">저녁 석</div><div class="crd">슬롯 4</div><div class="rtag">🔄 思→夕 (교체됨)</div></div></div><div class="pnote">⚠️ 저녁/시간 계열 — 성찰과 직접 연결 어려움</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">忘</div><div><div class="cinfo">잊을 망</div><div class="crd">슬롯 5</div><div class="rtag">🔄 考→忘 (교체됨)</div></div></div><div class="pnote">⚠️ 잊다 — 성찰의 반대 의미</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">望</div><div><div class="cinfo">바랄 망</div><div class="crd">슬롯 6</div><div class="rtag">🔄 反→望 (교체됨)</div></div></div><div class="pnote">⚠️ 바라다 — 미래지향, 성찰보다 도전 계열</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">古</div><div><div class="cinfo">옛 고</div><div class="crd">슬롯 7</div><div class="rtag">🔄 知→古 (교체됨)</div></div></div><div class="wnote">💡 옛것 — 과거 돌아봄으로 성찰 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">顧</div><div><div class="cinfo">돌아볼 고</div><div class="crd">슬롯 8</div><div class="rtag">🔄 意→顧 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">時</div><div><div class="cinfo">때 시</div><div class="crd">슬롯 9</div><div class="rtag">🔄 記→時 (교체됨)</div></div></div><div class="wnote">💡 때/시간 — 자기 시간 성찰로 간접 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">內</div><div><div class="cinfo">안 내</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">暮</div><div><div class="cinfo">저물 모</div><div class="crd">슬롯 11</div><div class="rtag">🔄 視→暮 (교체됨)</div></div></div><div class="pnote">⚠️ 저물다 — 시간적 배경, 성찰 의미 간접</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">夜</div><div><div class="cinfo">밤 야</div><div class="crd">슬롯 12</div><div class="rtag">🔄 點→夜 (교체됨)</div></div></div><div class="pnote">⚠️ 밤 — 시간 환경, 성찰 직결 어려움</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">昔</div><div><div class="cinfo">옛 석</div><div class="crd">슬롯 13</div><div class="rtag">🔄 理→昔 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">故</div><div><div class="cinfo">연고 고</div><div class="crd">슬롯 14</div><div class="rtag">🔄 解→故 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">往</div><div><div class="cinfo">갈 왕</div><div class="crd">슬롯 15</div><div class="rtag">🔄 檢→往 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">舊</div><div><div class="cinfo">예 구</div><div class="crd">슬롯 16</div><div class="rtag">🔄 照→舊 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">推</div><div><div class="cinfo">밀 추</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">精</div><div><div class="cinfo">자세할 정</div><div class="crd">슬롯 18</div><div class="rtag">🔄 究→精 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">細</div><div><div class="cinfo">가늘 세</div><div class="crd">슬롯 19</div><div class="rtag">🔄 深→細 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">憶</div><div><div class="cinfo">생각할 억</div><div class="crd">슬롯 20</div><div class="rtag">🔄 問→憶 (중복 제거)</div></div></div><div class="wnote">💡 기억함 — 회고·성찰 연결 가능</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">回</div><div><div class="cinfo">돌아올 회</div><div class="crd">슬롯 21</div><div class="rtag">🔄 覺→回 (중복 제거)</div></div></div><div class="wnote">💡 돌아오다 — 회고로 성찰 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">自</div><div><div class="cinfo">스스로 자</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">復</div><div><div class="cinfo">돌아올 복</div><div class="crd">슬롯 23</div><div class="rtag">🔄 心→復 (중복 제거)</div></div></div><div class="wnote">💡 돌아오다 — 회복·복귀, 성찰 간접</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">靜</div><div><div class="cinfo">고요할 정</div><div class="crd">슬롯 24</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">性</div><div><div class="cinfo">성품 성</div><div class="crd">슬롯 25</div><div class="rtag">🔄 明→性 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">觀</div><div><div class="cinfo">볼 관</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">命</div><div><div class="cinfo">목숨 명</div><div class="crd">슬롯 27</div><div class="rtag">🔄 判→命 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">歷</div><div><div class="cinfo">지낼 력</div><div class="crd">슬롯 28</div><div class="rtag">🔄 別→歷 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">苦</div><div><div class="cinfo">쓸 고</div><div class="crd">슬롯 29</div><div class="rtag">🔄 通→苦 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">體</div><div><div class="cinfo">몸 체</div><div class="crd">슬롯 30</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">得</div><div><div class="cinfo">얻을 득</div><div class="crd">슬롯 31</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (12개)</div><div class="ap-desc">아래 한자들은 <strong>성찰</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">悔</div><div class="ap-info"><div class="ap-rd">뉘우칠 회</div><div class="ap-why">잘못을 뉘우칠 — 성찰의 핵심 행위</div></div></div><div class="ap-chip"><div class="ap-hj">謙</div><div class="ap-info"><div class="ap-rd">겸손할 겸</div><div class="ap-why">자신을 낙추는 성찰적 태도</div></div></div><div class="ap-chip"><div class="ap-hj">默</div><div class="ap-info"><div class="ap-rd">잠잠할 묵</div><div class="ap-why">침묵 속에서 자신을 돌아봄</div></div></div><div class="ap-chip"><div class="ap-hj">戒</div><div class="ap-info"><div class="ap-rd">경계할 계</div><div class="ap-why">스스로 경계하고 삼감 — 내면 성찰</div></div></div><div class="ap-chip"><div class="ap-hj">慮</div><div class="ap-info"><div class="ap-rd">생각할 려</div><div class="ap-why">깊이 헤아렸 — 사려 깊은 성찰</div></div></div><div class="ap-chip"><div class="ap-hj">懺</div><div class="ap-info"><div class="ap-rd">뉘우칠 참</div><div class="ap-why">참회하며 마음을 돌아봄</div></div></div><div class="ap-chip"><div class="ap-hj">省</div><div class="ap-info"><div class="ap-rd">살필 성</div><div class="ap-why">성찰의 동의어 — 자기반성의 핵심</div></div></div><div class="ap-chip"><div class="ap-hj">察</div><div class="ap-info"><div class="ap-rd">살필 찰</div><div class="ap-why">자세히 살피고 관찰함</div></div></div><div class="ap-chip"><div class="ap-hj">修</div><div class="ap-info"><div class="ap-rd">닦을 수</div><div class="ap-why">자신을 닦고 수양함</div></div></div><div class="ap-chip"><div class="ap-hj">克</div><div class="ap-info"><div class="ap-rd">이길 극</div><div class="ap-why">자기 자신을 극복함</div></div></div><div class="ap-chip"><div class="ap-hj">敬</div><div class="ap-info"><div class="ap-rd">공경할 경</div><div class="ap-why">경건하게 자신을 돌아봄</div></div></div><div class="ap-chip"><div class="ap-hj">靜</div><div class="ap-info"><div class="ap-rd">고요할 정</div><div class="ap-why">고요히 내면을 들여다봄</div></div></div></div></div>
+<div class="atbl-wrap"><h3>검토 필요 항목 요약</h3><table class="atbl"><tr><th>등급</th><th>한자</th><th>독음</th><th>부적합/검토 이유</th></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">夕</td><td>저녁 석</td><td>저녁/시간 계열 — 성찰과 직접 연결 어려움</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">忘</td><td>잊을 망</td><td>잊다 — 성찰의 반대 의미</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">望</td><td>바랄 망</td><td>바라다 — 미래지향, 성찰보다 도전 계열</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">古</td><td>옛 고</td><td>옛것 — 과거 돌아봄으로 성찰 간접 연결</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">時</td><td>때 시</td><td>때/시간 — 자기 시간 성찰로 간접 연결</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">暮</td><td>저물 모</td><td>저물다 — 시간적 배경, 성찰 의미 간접</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">夜</td><td>밤 야</td><td>밤 — 시간 환경, 성찰 직결 어려움</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">憶</td><td>생각할 억</td><td>기억함 — 회고·성찰 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">回</td><td>돌아올 회</td><td>돌아오다 — 회고로 성찰 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">復</td><td>돌아올 복</td><td>돌아오다 — 회복·복귀, 성찰 간접</td></tr>
+</table></div>
+</div>
+<div class="ms " id="m8">
+<div class="mhdr"><h2>9월 — 다양성</h2><div class="sub">30자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 22</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 6</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 2</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">多</div><div><div class="cinfo">많을 다</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">處</div><div><div class="cinfo">곳 처</div><div class="crd">슬롯 2</div><div class="rtag">🔄 樣→處 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">異</div><div><div class="cinfo">다를 이</div><div class="crd">슬롯 3</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">位</div><div><div class="cinfo">자리 위</div><div class="crd">슬롯 4</div><div class="rtag">🔄 別→位 (교체됨)</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">各</div><div><div class="cinfo">각각 각</div><div class="crd">슬롯 5</div></div></div><div class="wnote">💡 각각 — 다양성 직접 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">種</div><div><div class="cinfo">씨 종</div><div class="crd">슬롯 6</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">萬</div><div><div class="cinfo">일만 만</div><div class="crd">슬롯 7</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">調</div><div><div class="cinfo">고를 조</div><div class="crd">슬롯 8</div><div class="rtag">🔄 分→調 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">衆</div><div><div class="cinfo">무리 중</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">殊</div><div><div class="cinfo">다를 수</div><div class="crd">슬롯 10</div><div class="rtag">🔄 群→殊 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">族</div><div><div class="cinfo">겨레 족</div><div class="crd">슬롯 11</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">彩</div><div><div class="cinfo">채색 채</div><div class="crd">슬롯 12</div><div class="rtag">🔄 類→彩 (교체됨)</div></div></div><div class="wnote">💡 다채로움 — 다양한 색과 표현으로 다양성 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">品</div><div><div class="cinfo">물건 품</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">博</div><div><div class="cinfo">넓을 박</div><div class="crd">슬롯 14</div><div class="rtag">🔄 變→博 (교체됨)</div></div></div><div class="wnote">💡 넓음/박식함 — 폭넓은 다양성 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">鄕</div><div><div class="cinfo">고향 향</div><div class="crd">슬롯 15</div><div class="rtag">🔄 雜→鄕 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">廣</div><div><div class="cinfo">넓을 광</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">展</div><div><div class="cinfo">펼 전</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">利</div><div><div class="cinfo">이로울 리</div><div class="crd">슬롯 18</div><div class="rtag">🔄 差→利 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">個</div><div><div class="cinfo">낱 개</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">他</div><div><div class="cinfo">다를 타</div><div class="crd">슬롯 20</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">散</div><div><div class="cinfo">흩어질 산</div><div class="crd">슬롯 21</div><div class="rtag">🔄 共→散 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">豐</div><div><div class="cinfo">풍년 풍</div><div class="crd">슬롯 22</div><div class="rtag">🔄 和→豐 (교체됨)</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">色</div><div><div class="cinfo">빛 색</div><div class="crd">슬롯 23</div><div class="rtag">🔄 協→色 (교체됨)</div></div></div><div class="pnote">⚠️ 색깔 — 추상성 낮음, 다양성 연결 약함</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">香</div><div><div class="cinfo">향기 향</div><div class="crd">슬롯 24</div><div class="rtag">🔄 合→香 (교체됨)</div></div></div><div class="pnote">⚠️ 향기 — 자연 감각 계열, 다양성 연결 약함</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">混</div><div><div class="cinfo">섞일 혼</div><div class="crd">슬롯 25</div><div class="rtag">🔄 交→混 (중복 제거)</div></div></div><div class="wnote">💡 섞임 — 다양성 핵심 개념 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">流</div><div><div class="cinfo">흐를 류</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">獨</div><div><div class="cinfo">홀로 독</div><div class="crd">슬롯 27</div><div class="rtag">🔄 接→獨 (중복 제거)</div></div></div><div class="wnote">💡 홀로/독자성 — 개성·고유함으로 다양성 연결</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">藝</div><div><div class="cinfo">재주 예</div><div class="crd">슬롯 28</div><div class="rtag">🔄 會→藝 (중복 제거)</div></div></div><div class="wnote">💡 재주/예술 — 다양한 재능으로 연결</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">俗</div><div><div class="cinfo">풍속 속</div><div class="crd">슬롯 29</div><div class="rtag">🔄 包→俗 (중복 제거)</div></div></div><div class="wnote">💡 풍속/문화 — 문화 다양성 연결 가능</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">貴</div><div><div class="cinfo">귀할 귀</div><div class="crd">슬롯 30</div><div class="rtag">🔄 容→貴 (중복 제거)</div></div></div><div class="wnote">💡 귀중함 — 각자의 가치 인정으로 연결</div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>다양성</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">融</div><div class="ap-info"><div class="ap-rd">녹을 융</div><div class="ap-why">서로 녹아 어우러짐 — 조화로운 다양성</div></div></div><div class="ap-chip"><div class="ap-hj">並</div><div class="ap-info"><div class="ap-rd">나란히 병</div><div class="ap-why">나란히 함께 존재함 — 다양성의 공존</div></div></div><div class="ap-chip"><div class="ap-hj">互</div><div class="ap-info"><div class="ap-rd">서로 호</div><div class="ap-why">서로 영향을 주고받음 — 다양성의 교류</div></div></div><div class="ap-chip"><div class="ap-hj">殊</div><div class="ap-info"><div class="ap-rd">다를 수</div><div class="ap-why">서로 다름 — 다양성의 본질</div></div></div><div class="ap-chip"><div class="ap-hj">諸</div><div class="ap-info"><div class="ap-rd">모든 제</div><div class="ap-why">모든 것을 아우름 — 다양성의 포용</div></div></div></div></div>
+<div class="atbl-wrap"><h3>검토 필요 항목 요약</h3><table class="atbl"><tr><th>등급</th><th>한자</th><th>독음</th><th>부적합/검토 이유</th></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">各</td><td>각각 각</td><td>각각 — 다양성 직접 연결 가능</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">色</td><td>빛 색</td><td>색깔 — 추상성 낮음, 다양성 연결 약함</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">香</td><td>향기 향</td><td>향기 — 자연 감각 계열, 다양성 연결 약함</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">混</td><td>섞일 혼</td><td>섞임 — 다양성 핵심 개념 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">獨</td><td>홀로 독</td><td>홀로/독자성 — 개성·고유함으로 다양성 연결</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">藝</td><td>재주 예</td><td>재주/예술 — 다양한 재능으로 연결</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">俗</td><td>풍속 속</td><td>풍속/문화 — 문화 다양성 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">貴</td><td>귀할 귀</td><td>귀중함 — 각자의 가치 인정으로 연결</td></tr>
+</table></div>
+</div>
+<div class="ms " id="m9">
+<div class="mhdr"><h2>10월 — 소통</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 26</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 0</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 5</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">聲</div><div><div class="cinfo">소리 성</div><div class="crd">슬롯 1</div><div class="rtag">🔄 通→聲 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">言</div><div><div class="cinfo">말씀 언</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">吟</div><div><div class="cinfo">읊을 음</div><div class="crd">슬롯 3</div><div class="rtag">🔄 語→吟 (교체됨)</div></div></div><div class="wnote">💡 읊고 표현함 — 소통의 표현 행위</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">注</div><div><div class="cinfo">물댈 주</div><div class="crd">슬롯 4</div><div class="rtag">🔄 話→注 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">談</div><div><div class="cinfo">말씀 담</div><div class="crd">슬롯 5</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">招</div><div><div class="cinfo">부를 초</div><div class="crd">슬롯 6</div><div class="rtag">🔄 聞→招 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">助</div><div><div class="cinfo">도울 조</div><div class="crd">슬롯 7</div><div class="rtag">🔄 傳→助 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">議</div><div><div class="cinfo">의논할 의</div><div class="crd">슬롯 8</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">報</div><div><div class="cinfo">알릴 보</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">答</div><div><div class="cinfo">대답할 답</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">指</div><div><div class="cinfo">가리킬 지</div><div class="crd">슬롯 11</div><div class="rtag">🔄 對→指 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">迎</div><div><div class="cinfo">맞이할 영</div><div class="crd">슬롯 12</div><div class="rtag">🔄 接→迎 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">洽</div><div><div class="cinfo">화합할 흡</div><div class="crd">슬롯 13</div><div class="rtag">🔄 交→洽 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">笑</div><div><div class="cinfo">웃을 소</div><div class="crd">슬롯 14</div><div class="rtag">🔄 會→笑 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">詩</div><div><div class="cinfo">글 시</div><div class="crd">슬롯 15</div><div class="rtag">🔄 集→詩 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">彰</div><div><div class="cinfo">밝힐 창</div><div class="crd">슬롯 16</div><div class="rtag">🔄 表→彰 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">示</div><div><div class="cinfo">보일 시</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">述</div><div><div class="cinfo">지을 술</div><div class="crd">슬롯 18</div><div class="rtag">🔄 說→述 (교체됨)</div></div></div><div class="wnote">💡 서술하다 — 소통의 표현·전달 행위</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">呼</div><div><div class="cinfo">부를 호</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">冊</div><div><div class="cinfo">책 책</div><div class="crd">슬롯 20</div><div class="rtag">🔄 應→冊 (교체됨)</div></div></div><div class="pnote">⚠️ 책 — 소통 도구이지만 직결 약함</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">送</div><div><div class="cinfo">보낼 송</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">聽</div><div><div class="cinfo">들을 청</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">紙</div><div><div class="cinfo">종이 지</div><div class="crd">슬롯 23</div><div class="rtag">🔄 記→紙 (교체됨)</div></div></div><div class="pnote">⚠️ 종이 — 소통 도구이지만 직결 약함</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">訓</div><div><div class="cinfo">가르칠 훈</div><div class="crd">슬롯 24</div><div class="rtag">🔄 解→訓 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">昌</div><div><div class="cinfo">창성할 창</div><div class="crd">슬롯 25</div><div class="rtag">🔄 理→昌 (교체됨)</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">快</div><div><div class="cinfo">상쾌할 쾌</div><div class="crd">슬롯 26</div><div class="rtag">🔄 判→快 (교체됨)</div></div></div><div class="pnote">⚠️ 유쾌함 — 소통 결과이지만 핵심 아님</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">熱</div><div><div class="cinfo">뜨거울 열</div><div class="crd">슬롯 27</div><div class="rtag">🔄 別→熱 (교체됨)</div></div></div><div class="pnote">⚠️ 열정 — 도전 계열, 소통 직접 연결 약함</div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">光</div><div><div class="cinfo">빛 광</div><div class="crd">슬롯 28</div><div class="rtag">🔄 信→光 (교체됨)</div></div></div><div class="pnote">⚠️ 빛 — 소통과 의미 연결 어려움</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">良</div><div><div class="cinfo">어질 량</div><div class="crd">슬롯 29</div><div class="rtag">🔄 合→良 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">號</div><div><div class="cinfo">이름 호</div><div class="crd">슬롯 30</div><div class="rtag">🔄 協→號 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">連</div><div><div class="cinfo">이을 련</div><div class="crd">슬롯 31</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>소통</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">傾</div><div class="ap-info"><div class="ap-rd">기울 경</div><div class="ap-why">귀를 기울여 들음 — 소통의 경청</div></div></div><div class="ap-chip"><div class="ap-hj">納</div><div class="ap-info"><div class="ap-rd">들일 납</div><div class="ap-why">받아들임 — 소통의 수용</div></div></div><div class="ap-chip"><div class="ap-hj">互</div><div class="ap-info"><div class="ap-rd">서로 호</div><div class="ap-why">서로 주고받음 — 소통의 쌍방향성</div></div></div><div class="ap-chip"><div class="ap-hj">諾</div><div class="ap-info"><div class="ap-rd">허락할 락</div><div class="ap-why">응낙하고 동의함 — 소통의 결실</div></div></div><div class="ap-chip"><div class="ap-hj">贈</div><div class="ap-info"><div class="ap-rd">줄 증</div><div class="ap-why">선물처럼 마음을 전함 — 소통의 온기</div></div></div></div></div>
+<div class="atbl-wrap"><h3>검토 필요 항목 요약</h3><table class="atbl"><tr><th>등급</th><th>한자</th><th>독음</th><th>부적합/검토 이유</th></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">冊</td><td>책 책</td><td>책 — 소통 도구이지만 직결 약함</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">紙</td><td>종이 지</td><td>종이 — 소통 도구이지만 직결 약함</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">快</td><td>상쾌할 쾌</td><td>유쾌함 — 소통 결과이지만 핵심 아님</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">熱</td><td>뜨거울 열</td><td>열정 — 도전 계열, 소통 직접 연결 약함</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">光</td><td>빛 광</td><td>빛 — 소통과 의미 연결 어려움</td></tr>
+</table></div>
+</div>
+<div class="ms " id="m10">
+<div class="mhdr"><h2>11월 — 책임</h2><div class="sub">30자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 26</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 2</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 2</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">責</div><div><div class="cinfo">꾸짖을 책</div><div class="crd">슬롯 1</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">盡</div><div><div class="cinfo">다할 진</div><div class="crd">슬롯 2</div><div class="rtag">🔄 任→盡 (교체됨)</div></div></div><div class="wnote">💡 다하다 — 책임 완수 의미로 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">忠</div><div><div class="cinfo">충성 충</div><div class="crd">슬롯 3</div><div class="rtag">🔄 守→忠 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">重</div><div><div class="cinfo">무거울 중</div><div class="crd">슬롯 4</div><div class="rtag">🔄 義→重 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">恒</div><div><div class="cinfo">항상 항</div><div class="crd">슬롯 5</div><div class="rtag">🔄 務→恒 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">執</div><div><div class="cinfo">잡을 집</div><div class="crd">슬롯 6</div><div class="rtag">🔄 當→執 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">倫</div><div><div class="cinfo">인륜 륜</div><div class="crd">슬롯 7</div><div class="rtag">🔄 服→倫 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">仕</div><div><div class="cinfo">벼슬 사</div><div class="crd">슬롯 8</div><div class="rtag">🔄 承→仕 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">保</div><div><div class="cinfo">지킬 보</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">存</div><div><div class="cinfo">있을 존</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">使</div><div><div class="cinfo">하여금 사</div><div class="crd">슬롯 11</div><div class="rtag">🔄 持→使 ()</div></div></div><div class="wnote">💡 부리다/사신 — 사명·역할로 책임 간접</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">致</div><div><div class="cinfo">이룰 치</div><div class="crd">슬롯 12</div><div class="rtag">🔄 擔→致 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">施</div><div><div class="cinfo">베풀 시</div><div class="crd">슬롯 13</div><div class="rtag">🔄 應→施 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">至</div><div><div class="cinfo">이를 지</div><div class="crd">슬롯 14</div><div class="rtag">🔄 約→至 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">定</div><div><div class="cinfo">정할 정</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">世</div><div><div class="cinfo">세상 세</div><div class="crd">슬롯 16</div><div class="rtag">🔄 履→世 (교체됨)</div></div></div><div class="pnote">⚠️ 세상 — 책임의 배경이지만 직접 연관 약함</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">備</div><div><div class="cinfo">갖출 비</div><div class="crd">슬롯 17</div><div class="rtag">🔄 行→備 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">完</div><div><div class="cinfo">완전할 완</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">全</div><div><div class="cinfo">온전할 전</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">威</div><div><div class="cinfo">위엄 위</div><div class="crd">슬롯 20</div><div class="rtag">🔄 信→威 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">必</div><div><div class="cinfo">반드시 필</div><div class="crd">슬롯 21</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">要</div><div><div class="cinfo">중요할 요</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">丹</div><div><div class="cinfo">붉을 단</div><div class="crd">슬롯 23</div><div class="rtag">🔄 準→丹 (교체됨)</div></div></div><div class="pnote">⚠️ 붉음/정성 — 책임 의미 간접</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">主</div><div><div class="cinfo">주인 주</div><div class="crd">슬롯 24</div><div class="rtag">🔄 則→主 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">君</div><div><div class="cinfo">임금 군</div><div class="crd">슬롯 25</div><div class="rtag">🔄 律→君 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">依</div><div><div class="cinfo">의지할 의</div><div class="crd">슬롯 26</div><div class="rtag">🔄 規→依 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">患</div><div><div class="cinfo">근심 환</div><div class="crd">슬롯 27</div><div class="rtag">🔄 效→患 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">結</div><div><div class="cinfo">맺을 결</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">果</div><div><div class="cinfo">열매 과</div><div class="crd">슬롯 29</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">成</div><div><div class="cinfo">이룰 성</div><div class="crd">슬롯 30</div></div></div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (4개)</div><div class="ap-desc">아래 한자들은 <strong>책임</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">誓</div><div class="ap-info"><div class="ap-rd">맹세할 서</div><div class="ap-why">맹세함 — 책임의 다짐</div></div></div><div class="ap-chip"><div class="ap-hj">償</div><div class="ap-info"><div class="ap-rd">갚을 상</div><div class="ap-why">갚고 보상함 — 책임의 이행</div></div></div><div class="ap-chip"><div class="ap-hj">踐</div><div class="ap-info"><div class="ap-rd">밟을 천</div><div class="ap-why">실천하고 행함 — 책임의 실행</div></div></div><div class="ap-chip"><div class="ap-hj">諾</div><div class="ap-info"><div class="ap-rd">허락할 락</div><div class="ap-why">약속하고 수락함 — 책임의 시작</div></div></div></div></div>
+<div class="atbl-wrap"><h3>검토 필요 항목 요약</h3><table class="atbl"><tr><th>등급</th><th>한자</th><th>독음</th><th>부적합/검토 이유</th></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">盡</td><td>다할 진</td><td>다하다 — 책임 완수 의미로 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">使</td><td>하여금 사</td><td>부리다/사신 — 사명·역할로 책임 간접</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">世</td><td>세상 세</td><td>세상 — 책임의 배경이지만 직접 연관 약함</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">丹</td><td>붉을 단</td><td>붉음/정성 — 책임 의미 간접</td></tr>
+</table></div>
+</div>
+<div class="ms " id="m11">
+<div class="mhdr"><h2>12월 — 성장</h2><div class="sub">31자 슬롯</div><div class="mstats"><span class="mst" style="background:#d4edda;color:#155724">✅ 26</span><span class="mst" style="background:#fff3cd;color:#856404">🔶 3</span><span class="mst" style="background:#f8d7da;color:#721c24">❌ 2</span></div></div>
+<div class="grid">
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">興</div><div><div class="cinfo">일어날 흥</div><div class="crd">슬롯 1</div><div class="rtag">🔄 成→興 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">長</div><div><div class="cinfo">자랄 장</div><div class="crd">슬롯 2</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">萌</div><div><div class="cinfo">싹틀 맹</div><div class="crd">슬롯 3</div><div class="rtag">🔄 進→萌 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">厚</div><div><div class="cinfo">두터울 후</div><div class="crd">슬롯 4</div><div class="rtag">🔄 發→厚 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">遠</div><div><div class="cinfo">멀 원</div><div class="crd">슬롯 5</div><div class="rtag">🔄 展→遠 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">翔</div><div><div class="cinfo">날 상</div><div class="crd">슬롯 6</div><div class="rtag">🔄 變→翔 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">卓</div><div><div class="cinfo">높을 탁</div><div class="crd">슬롯 7</div><div class="rtag">🔄 達→卓 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">乘</div><div><div class="cinfo">탈 승</div><div class="crd">슬롯 8</div><div class="rtag">🔄 起→乘 (교체됨)</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">增</div><div><div class="cinfo">더할 증</div><div class="crd">슬롯 9</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">加</div><div><div class="cinfo">더할 가</div><div class="crd">슬롯 10</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">揚</div><div><div class="cinfo">날릴 양</div><div class="crd">슬롯 11</div><div class="rtag">🔄 改→揚 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">新</div><div><div class="cinfo">새 신</div><div class="crd">슬롯 12</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">英</div><div><div class="cinfo">꽃부리 영</div><div class="crd">슬롯 13</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">榮</div><div><div class="cinfo">영화 영</div><div class="crd">슬롯 14</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">盛</div><div><div class="cinfo">성할 성</div><div class="crd">슬롯 15</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">育</div><div><div class="cinfo">기를 육</div><div class="crd">슬롯 16</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">養</div><div><div class="cinfo">기를 양</div><div class="crd">슬롯 17</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">建</div><div><div class="cinfo">세울 건</div><div class="crd">슬롯 18</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">立</div><div><div class="cinfo">설 립</div><div class="crd">슬롯 19</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">茂</div><div><div class="cinfo">무성할 무</div><div class="crd">슬롯 20</div><div class="rtag">🔄 完→茂 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">活</div><div><div class="cinfo">살 활</div><div class="crd">슬롯 21</div><div class="rtag">🔄 開→活 ()</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">高</div><div><div class="cinfo">높을 고</div><div class="crd">슬롯 22</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">滿</div><div><div class="cinfo">찰 만</div><div class="crd">슬롯 23</div><div class="rtag">🔄 強→滿 ()</div></div></div><div class="pnote">⚠️ 가득함 — 성장 결과일 수 있으나 직접 연결 약함</div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">偉</div><div><div class="cinfo">위대할 위</div><div class="crd">슬롯 24</div><div class="rtag">🔄 能→偉 (중복 제거)</div></div></div><div class="wnote">💡 위대함 — 성장 결과 이미지 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">富</div><div><div class="cinfo">부유할 부</div><div class="crd">슬롯 25</div></div></div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">極</div><div><div class="cinfo">다할 극</div><div class="crd">슬롯 26</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">充</div><div><div class="cinfo">찰 충</div><div class="crd">슬롯 27</div></div></div><div class="wnote">💡 채우다 — 성장 채움 의미 연결 가능</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">益</div><div><div class="cinfo">더할 익</div><div class="crd">슬롯 28</div></div></div></div>
+<div class="card weak"><div class="cbdg">🔶</div><div class="cmain"><div class="chj">向</div><div><div class="cinfo">향할 향</div><div class="crd">슬롯 29</div></div></div><div class="wnote">💡 향하다 — 방향성·지향으로 성장 연결</div></div>
+<div class="card strong"><div class="cbdg">✅</div><div class="cmain"><div class="chj">希</div><div><div class="cinfo">바랄 희</div><div class="crd">슬롯 30</div></div></div></div>
+<div class="card poor"><div class="cbdg">❌</div><div class="cmain"><div class="chj">洋</div><div><div class="cinfo">큰바다 양</div><div class="crd">슬롯 31</div><div class="rtag">🔄 續→洋 ()</div></div></div><div class="pnote">⚠️ 바다/넓음 — 성장 비유이나 추상적</div></div>
+</div>
+<div class="alt-pool"><div class="ap-title">💡 이 달 교체 가능한 대안 풀 (5개)</div><div class="ap-desc">아래 한자들은 <strong>성장</strong> 테마와 연결되는 한자들입니다.<br>교체 원하시는 항목과 선택하신 대안을 알려주시면 바로 반영합니다. (같은 달 내 중복 없이 선택)</div><div class="ap-chips"><div class="ap-chip"><div class="ap-hj">超</div><div class="ap-info"><div class="ap-rd">뛰어넘을 초</div><div class="ap-why">한계를 뛰어넘음 — 성장의 도약</div></div></div><div class="ap-chip"><div class="ap-hj">昇</div><div class="ap-info"><div class="ap-rd">오를 승</div><div class="ap-why">위로 오름 — 성장의 방향</div></div></div><div class="ap-chip"><div class="ap-hj">豊</div><div class="ap-info"><div class="ap-rd">풍성할 풍</div><div class="ap-why">풍요롭게 여뭄 — 성장의 결실</div></div></div><div class="ap-chip"><div class="ap-hj">熟</div><div class="ap-info"><div class="ap-rd">익을 숙</div><div class="ap-why">익어감 — 성장의 성숙</div></div></div><div class="ap-chip"><div class="ap-hj">拓</div><div class="ap-info"><div class="ap-rd">열 척</div><div class="ap-why">새 길을 열어나감 — 성장의 개척</div></div></div></div></div>
+<div class="atbl-wrap"><h3>검토 필요 항목 요약</h3><table class="atbl"><tr><th>등급</th><th>한자</th><th>독음</th><th>부적합/검토 이유</th></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">滿</td><td>찰 만</td><td>가득함 — 성장 결과일 수 있으나 직접 연결 약함</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">偉</td><td>위대할 위</td><td>위대함 — 성장 결과 이미지 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">充</td><td>찰 충</td><td>채우다 — 성장 채움 의미 연결 가능</td></tr>
+<tr><td>🔶</td><td style="font-size:18px;font-weight:700">向</td><td>향할 향</td><td>향하다 — 방향성·지향으로 성장 연결</td></tr>
+<tr><td>❌</td><td style="font-size:18px;font-weight:700">洋</td><td>큰바다 양</td><td>바다/넓음 — 성장 비유이나 추상적</td></tr>
+</table></div>
+</div>
+<div class="foot"><strong>검토 방법:</strong> 탭에서 월 선택 → ❌(빨강)부터 검토 → 월별 대안 풀에서 원하시는 한자 선택 → 알려주시면 Sheets에 바로 반영<br><strong>대안 풀:</strong> 억지 연관성 없이, 테마와 명확하게 맞는 한자만 제시했습니다. 대안이 없는 달은 없다고 솔직히 표시했습니다.<br><strong>🔄 태그:</strong> 중복 제거 또는 수준 향상을 위해 자동 교체된 항목입니다.</div></div>
+<script>function show(i){document.querySelectorAll(".ms").forEach(e=>e.classList.remove("active"));document.querySelectorAll(".tab").forEach(e=>e.classList.remove("active"));document.getElementById("m"+i).classList.add("active");document.getElementById("t"+i).classList.add("active");}</script>
+</div>
+
+<!-- 섹션2: 중복제거 검증리포트 -->
+<div class="section-content s2 active" id="sec2">
+<div class="wrap">
+
+  <!-- 작업 과정 설명 -->
+  <div class="section" style="background:#f8f9fa;border-radius:10px;padding:24px 28px;margin-bottom:36px;border:1px solid #e0e0e0;">
+    <div class="section-title" style="border-bottom:1px solid #ddd;padding-bottom:10px;margin-bottom:16px;font-size:17px;font-weight:700;color:#1a1a1a;">
+      📌 작업 개요 — 무엇을 어떻게 했는가
+    </div>
+    <div style="font-size:13.5px;color:#333;line-height:2;display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">① 원본 보존 원칙</div>
+        <div>원본 Google Sheets는 <b>건드리지 않고</b> 복사본을 새로 만들어 모든 작업을 복사본에서만 진행했습니다. 원본은 언제든지 복원 기준으로 활용 가능합니다.</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">② 900자 기준 설정</div>
+        <div>교육부 지정 <b>중학교 한문 교육용 기초 한자 900자</b> PDF를 직접 읽어 목록을 추출했습니다. 달력 원고의 모든 한자를 이 목록과 대조해 범위 외 한자를 파악했습니다.</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">③ 중복 제거 방식 (첫 등장 월 유지)</div>
+        <div>1월 → 12월 순서로 스캔하여, 같은 한자가 두 번 이상 등장하면 <b>첫 번째 월만 유지</b>하고 이후 중복 슬롯을 교체 대상으로 지정했습니다.</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">④ 교체 우선순위</div>
+        <div>① 중복 한자 → ② 숫자·천간·지지·허사 등 부적합 한자 → ③ 초등 수준 기초 한자(日·月·山 등) 순으로 교체 대상을 선별했습니다.</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">⑤ 교체 한자 선정</div>
+        <div>900자 중 <b>아직 달력에 미사용된 한자 풀</b>에서 해당 월 주제(성찰·다양성·소통 등)와 의미적으로 가까운 한자를 우선 배정했습니다. 주제 연관성이 낮은 경우는 「주제 적합성 검토」탭에 별도 표시했습니다.</div>
+      </div>
+      <div>
+        <div style="font-weight:700;color:#1a1a2e;margin-bottom:8px;">⑥ 전수 검증</div>
+        <div>교체 완료 후 <b>① 중복 0건, ② 빈 슬롯 0건, ③ 900자 범위 이탈 0건</b>을 자동 스크립트로 확인했습니다. 아래 교체 전후 비교표와 검증 결과가 그 근거입니다.</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;padding:12px 16px;background:#fff3cd;border-radius:7px;font-size:12.5px;color:#856404;line-height:1.8;">
+      <b>📎 추가 수정 안내</b> — 교체 결과가 마음에 들지 않는 슬롯이 있으면, <b>월·일·현재 한자·원하는 방향</b>을 알려 주시면 바로 수정 가능합니다. 예: "8월 5일 省은 좀 더 어려운 한자로 바꿔줘" 또는 "9월에 文化 느낌이 나는 글자를 넣고 싶어".
+    </div>
+  </div>
+
+</div>
+
+  <!-- Summary Banner -->
+  <div class="summary-banner">
+    <div class="banner-item">
+      <div class="label">총 교체</div>
+      <div class="value">135건</div>
+      <div class="badge">완료</div>
+    </div>
+    <div class="banner-item">
+      <div class="label">중복 한자</div>
+      <div class="value">0건</div>
+      <div class="badge">✅ 중복 없음</div>
+    </div>
+    <div class="banner-item">
+      <div class="label">900자 범위</div>
+      <div class="value">전수 포함</div>
+      <div class="badge">✅ 이탈 없음</div>
+    </div>
+    <div class="banner-item">
+      <div class="label">빈 슬롯</div>
+      <div class="value">0건</div>
+      <div class="badge">✅ 모두 채워짐</div>
+    </div>
+  </div>
+
+  <!-- Section 1 -->
+  <div class="section">
+    <div class="section-title"><span class="sec-num">1</span> 교체 항목 전체표 (135건)</div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-box lb-replaced"></div> 중복/불량 교체 (135건)</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>월</th>
+          <th>슬롯(일)</th>
+          <th>교체 전 한자</th>
+          <th>교체 후 한자</th>
+          <th>교체 이유</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="month-header-row"><td colspan="5">📅 1월 (배움)</td></tr>
+<tr class="bg-replaced">
+  <td>1월</td>
+  <td>30일</td>
+  <td class="hanja-old">覺(깨달을 각)</td>
+  <td class="hanja-new">師(스승 사)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 2월 (성실)</td></tr>
+<tr class="bg-replaced">
+  <td>2월</td>
+  <td>3일</td>
+  <td class="hanja-old">努(힘쓸 노)</td>
+  <td class="hanja-new">勞(힘쓸 로)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>2월</td>
+  <td>29일</td>
+  <td class="hanja-old">積(쌓을 적)</td>
+  <td class="hanja-new">功(공 공)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 3월 (정직)</td></tr>
+<tr class="bg-replaced">
+  <td>3월</td>
+  <td>24일</td>
+  <td class="hanja-old">審(살필 심)</td>
+  <td class="hanja-new">潔(깨끗할 결)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>3월</td>
+  <td>25일</td>
+  <td class="hanja-old">檢(검사할 검)</td>
+  <td class="hanja-new">素(본디 소)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>3월</td>
+  <td>31일</td>
+  <td class="hanja-old">廉(청렴할 렴)</td>
+  <td class="hanja-new">淸(맑을 청)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 4월 (존중)</td></tr>
+<tr class="bg-replaced">
+  <td>4월</td>
+  <td>30일</td>
+  <td class="hanja-old">配(짝 배)</td>
+  <td class="hanja-new">奉(받들 봉)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 5월 (공감)</td></tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>20일</td>
+  <td class="hanja-old">慰(위로할 위)</td>
+  <td class="hanja-new">悅(기쁠 열)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>21일</td>
+  <td class="hanja-old">聞(들을 문)</td>
+  <td class="hanja-new">遇(만날 우)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>25일</td>
+  <td class="hanja-old">恕(용서할 서)</td>
+  <td class="hanja-new">受(받을 수)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>27일</td>
+  <td class="hanja-old">寬(너그러울 관)</td>
+  <td class="hanja-new">暖(따뜻할 난)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>30일</td>
+  <td class="hanja-old">惠(은혜 혜)</td>
+  <td class="hanja-new">歡(기쁠 환)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>5월</td>
+  <td>31일</td>
+  <td class="hanja-old">憐(불쌍히 여길 련)</td>
+  <td class="hanja-new">仰(우러를 앙)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 6월 (도전)</td></tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>1일</td>
+  <td class="hanja-old">挑(도전할 도)</td>
+  <td class="hanja-new">壯(씩씩할 장)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>10일</td>
+  <td class="hanja-old">突(부딪칠 돌)</td>
+  <td class="hanja-new">氣(기운 기)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>11일</td>
+  <td class="hanja-old">衝(부딪칠 충)</td>
+  <td class="hanja-new">志(뜻 지)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>17일</td>
+  <td class="hanja-old">越(넘을 월)</td>
+  <td class="hanja-new">期(기약할 기)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>20일</td>
+  <td class="hanja-old">改(고칠 개)</td>
+  <td class="hanja-new">擧(들 거)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>22일</td>
+  <td class="hanja-old">強(강할 강)</td>
+  <td class="hanja-new">出(나갈 출)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>23일</td>
+  <td class="hanja-old">努(힘쓸 노)</td>
+  <td class="hanja-new">求(구할 구)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>24일</td>
+  <td class="hanja-old">進(나아갈 진)</td>
+  <td class="hanja-new">就(나아갈 취)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>25일</td>
+  <td class="hanja-old">試(시험할 시)</td>
+  <td class="hanja-new">敵(대적할 적)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>27일</td>
+  <td class="hanja-old">創(비롯할 창)</td>
+  <td class="hanja-new">赤(붉을 적)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>29일</td>
+  <td class="hanja-old">奮(떨칠 분)</td>
+  <td class="hanja-new">前(앞 전)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>6월</td>
+  <td>30일</td>
+  <td class="hanja-old">躍(뛸 약)</td>
+  <td class="hanja-new">決(결단할 결)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 7월 (공정)</td></tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>1일</td>
+  <td class="hanja-old">公(공평할 공)</td>
+  <td class="hanja-new">度(법도 도)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>2일</td>
+  <td class="hanja-old">平(평평할 평)</td>
+  <td class="hanja-new">令(명령할 령)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>3일</td>
+  <td class="hanja-old">均(고를 균)</td>
+  <td class="hanja-new">道(길 도)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>4일</td>
+  <td class="hanja-old">判(판단할 판)</td>
+  <td class="hanja-new">統(거느릴 통)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>10일</td>
+  <td class="hanja-old">制(제도 제)</td>
+  <td class="hanja-new">限(한정할 한)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>12일</td>
+  <td class="hanja-old">較(견줄 교)</td>
+  <td class="hanja-new">節(마디 절)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>13일</td>
+  <td class="hanja-old">衡(저울질할 형)</td>
+  <td class="hanja-new">方(방위 방)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>15일</td>
+  <td class="hanja-old">準(기준 준)</td>
+  <td class="hanja-new">例(본보기 례)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>16일</td>
+  <td class="hanja-old">規(법 규)</td>
+  <td class="hanja-new">刑(형벌 형)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>17일</td>
+  <td class="hanja-old">正(바를 정)</td>
+  <td class="hanja-new">罪(허물 죄)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>18일</td>
+  <td class="hanja-old">義(옳을 의)</td>
+  <td class="hanja-new">禁(금할 금)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>19일</td>
+  <td class="hanja-old">審(살필 심)</td>
+  <td class="hanja-new">賞(상줄 상)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>20일</td>
+  <td class="hanja-old">檢(검사할 검)</td>
+  <td class="hanja-new">嚴(엄할 엄)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>21일</td>
+  <td class="hanja-old">實(열매 실)</td>
+  <td class="hanja-new">誤(잘못할 오)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>22일</td>
+  <td class="hanja-old">信(믿을 신)</td>
+  <td class="hanja-new">官(벼슬 관)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>24일</td>
+  <td class="hanja-old">約(맺을 약)</td>
+  <td class="hanja-new">民(백성 민)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>25일</td>
+  <td class="hanja-old">協(도울 협)</td>
+  <td class="hanja-new">從(따를 종)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>7월</td>
+  <td>27일</td>
+  <td class="hanja-old">配(나눌 배)</td>
+  <td class="hanja-new">勸(권할 권)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 8월 (성찰)</td></tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>2일</td>
+  <td class="hanja-old">察(살필 찰)</td>
+  <td class="hanja-new">看(볼 간)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>4일</td>
+  <td class="hanja-old">思(생각 사)</td>
+  <td class="hanja-new">夕(저녁 석)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>5일</td>
+  <td class="hanja-old">考(생각할 고)</td>
+  <td class="hanja-new">忘(잊을 망)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>6일</td>
+  <td class="hanja-old">反(돌이킬 반)</td>
+  <td class="hanja-new">望(바랄 망)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>7일</td>
+  <td class="hanja-old">知(알지)</td>
+  <td class="hanja-new">古(옛 고)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>8일</td>
+  <td class="hanja-old">意(뜻 의)</td>
+  <td class="hanja-new">事(일 사)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>9일</td>
+  <td class="hanja-old">記(기록할 기)</td>
+  <td class="hanja-new">時(때 시)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>11일</td>
+  <td class="hanja-old">視(볼 시)</td>
+  <td class="hanja-new">暮(저물 모)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>12일</td>
+  <td class="hanja-old">點(점 점)</td>
+  <td class="hanja-new">夜(밤 야)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>13일</td>
+  <td class="hanja-old">理(다스릴 리)</td>
+  <td class="hanja-new">昔(옛 석)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>14일</td>
+  <td class="hanja-old">解(풀 해)</td>
+  <td class="hanja-new">故(연고 고)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>15일</td>
+  <td class="hanja-old">檢(검사할 검)</td>
+  <td class="hanja-new">往(갈 왕)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>16일</td>
+  <td class="hanja-old">照(비출 조)</td>
+  <td class="hanja-new">舊(예 구)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>18일</td>
+  <td class="hanja-old">究(연구할 구)</td>
+  <td class="hanja-new">精(자세할 정)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>19일</td>
+  <td class="hanja-old">深(깊을 심)</td>
+  <td class="hanja-new">細(가늘 세)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>20일</td>
+  <td class="hanja-old">問(물을 문)</td>
+  <td class="hanja-new">憶(생각할 억)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>21일</td>
+  <td class="hanja-old">覺(깨달을 각)</td>
+  <td class="hanja-new">回(돌아올 회)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>23일</td>
+  <td class="hanja-old">心(마음 심)</td>
+  <td class="hanja-new">復(돌아올 복)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>25일</td>
+  <td class="hanja-old">明(밝을 명)</td>
+  <td class="hanja-new">性(성품 성)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>27일</td>
+  <td class="hanja-old">判(판단할 판)</td>
+  <td class="hanja-new">命(목숨 명)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>28일</td>
+  <td class="hanja-old">別(다를 별)</td>
+  <td class="hanja-new">歷(지낼 력)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>8월</td>
+  <td>29일</td>
+  <td class="hanja-old">通(통할 통)</td>
+  <td class="hanja-new">苦(쓸 고)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 9월 (다양성)</td></tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>2일</td>
+  <td class="hanja-old">樣(모양 양)</td>
+  <td class="hanja-new">處(곳 처)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>4일</td>
+  <td class="hanja-old">別(다를 별)</td>
+  <td class="hanja-new">位(자리 위)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>8일</td>
+  <td class="hanja-old">分(나눌 분)</td>
+  <td class="hanja-new">調(고를 조)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>10일</td>
+  <td class="hanja-old">群(무리 군)</td>
+  <td class="hanja-new">路(길 로)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>12일</td>
+  <td class="hanja-old">類(무리 류)</td>
+  <td class="hanja-new">遊(놀 유)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>14일</td>
+  <td class="hanja-old">變(변할 변)</td>
+  <td class="hanja-new">旅(나그네 려)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>15일</td>
+  <td class="hanja-old">雜(섞일 잡)</td>
+  <td class="hanja-new">鄕(고향 향)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>18일</td>
+  <td class="hanja-old">差(다를 차)</td>
+  <td class="hanja-new">利(이로울 리)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>21일</td>
+  <td class="hanja-old">共(함께 공)</td>
+  <td class="hanja-new">散(흩어질 산)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>22일</td>
+  <td class="hanja-old">和(화목할 화)</td>
+  <td class="hanja-new">豐(풍년 풍)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>23일</td>
+  <td class="hanja-old">協(도울 협)</td>
+  <td class="hanja-new">色(빛 색)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>24일</td>
+  <td class="hanja-old">合(합할 합)</td>
+  <td class="hanja-new">香(향기 향)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>25일</td>
+  <td class="hanja-old">交(사귈 교)</td>
+  <td class="hanja-new">混(섞일 혼)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>27일</td>
+  <td class="hanja-old">接(이을 접)</td>
+  <td class="hanja-new">獨(홀로 독)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>28일</td>
+  <td class="hanja-old">會(모일 회)</td>
+  <td class="hanja-new">藝(재주 예)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>29일</td>
+  <td class="hanja-old">包(쌀 포)</td>
+  <td class="hanja-new">俗(풍속 속)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>9월</td>
+  <td>30일</td>
+  <td class="hanja-old">容(받을 용)</td>
+  <td class="hanja-new">貴(귀할 귀)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 10월 (소통)</td></tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>1일</td>
+  <td class="hanja-old">通(통할 통)</td>
+  <td class="hanja-new">聲(소리 성)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>3일</td>
+  <td class="hanja-old">語(말씀 어)</td>
+  <td class="hanja-new">音(소리 음)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>4일</td>
+  <td class="hanja-old">話(말씀 화)</td>
+  <td class="hanja-new">注(물댈 주)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>6일</td>
+  <td class="hanja-old">聞(들을 문)</td>
+  <td class="hanja-new">招(부를 초)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>7일</td>
+  <td class="hanja-old">傳(전할 전)</td>
+  <td class="hanja-new">助(도울 조)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>11일</td>
+  <td class="hanja-old">對(대할 대)</td>
+  <td class="hanja-new">指(가리킬 지)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>12일</td>
+  <td class="hanja-old">接(이을 접)</td>
+  <td class="hanja-new">迎(맞이할 영)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>13일</td>
+  <td class="hanja-old">交(사귈 교)</td>
+  <td class="hanja-new">歌(노래 가)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>14일</td>
+  <td class="hanja-old">會(모일 회)</td>
+  <td class="hanja-new">笑(웃을 소)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>15일</td>
+  <td class="hanja-old">集(모일 집)</td>
+  <td class="hanja-new">詩(글 시)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>16일</td>
+  <td class="hanja-old">表(겉 표)</td>
+  <td class="hanja-new">畫(그림 화)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>18일</td>
+  <td class="hanja-old">說(말씀 설)</td>
+  <td class="hanja-new">字(글자 자)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>20일</td>
+  <td class="hanja-old">應(응할 응)</td>
+  <td class="hanja-new">冊(책 책)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>23일</td>
+  <td class="hanja-old">記(기록할 기)</td>
+  <td class="hanja-new">紙(종이 지)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>24일</td>
+  <td class="hanja-old">解(풀 해)</td>
+  <td class="hanja-new">訓(가르칠 훈)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>25일</td>
+  <td class="hanja-old">理(다스릴 리)</td>
+  <td class="hanja-new">昌(창성할 창)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>26일</td>
+  <td class="hanja-old">判(판단할 판)</td>
+  <td class="hanja-new">快(상쾌할 쾌)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>27일</td>
+  <td class="hanja-old">別(다를 별)</td>
+  <td class="hanja-new">熱(뜨거울 열)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>28일</td>
+  <td class="hanja-old">信(믿을 신)</td>
+  <td class="hanja-new">光(빛 광)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>29일</td>
+  <td class="hanja-old">合(합할 합)</td>
+  <td class="hanja-new">良(어질 량)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>10월</td>
+  <td>30일</td>
+  <td class="hanja-old">協(도울 협)</td>
+  <td class="hanja-new">號(이름 호)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 11월 (책임)</td></tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>2일</td>
+  <td class="hanja-old">任(맡길 임)</td>
+  <td class="hanja-new">盡(다할 진)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>3일</td>
+  <td class="hanja-old">守(지킬 수)</td>
+  <td class="hanja-new">忠(충성 충)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>4일</td>
+  <td class="hanja-old">義(옳을 의)</td>
+  <td class="hanja-new">重(무거울 중)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>5일</td>
+  <td class="hanja-old">務(힘쓸 무)</td>
+  <td class="hanja-new">恒(항상 항)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>6일</td>
+  <td class="hanja-old">當(마땅할 당)</td>
+  <td class="hanja-new">執(잡을 집)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>7일</td>
+  <td class="hanja-old">服(따를 복)</td>
+  <td class="hanja-new">倫(인륜 륜)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>8일</td>
+  <td class="hanja-old">承(이을 승)</td>
+  <td class="hanja-new">仕(벼슬 사)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>11일</td>
+  <td class="hanja-old">持(가질지)</td>
+  <td class="hanja-new">使(하여금 사)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>12일</td>
+  <td class="hanja-old">擔(멜 담)</td>
+  <td class="hanja-new">致(이룰 치)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>13일</td>
+  <td class="hanja-old">應(응할 응)</td>
+  <td class="hanja-new">施(베풀 시)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>14일</td>
+  <td class="hanja-old">約(맺을 약)</td>
+  <td class="hanja-new">至(이를 지)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>16일</td>
+  <td class="hanja-old">履(밟을 리)</td>
+  <td class="hanja-new">世(세상 세)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>17일</td>
+  <td class="hanja-old">行(행할 행)</td>
+  <td class="hanja-new">備(갖출 비)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>20일</td>
+  <td class="hanja-old">信(믿을 신)</td>
+  <td class="hanja-new">威(위엄 위)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>23일</td>
+  <td class="hanja-old">準(기준 준)</td>
+  <td class="hanja-new">丹(붉을 단)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>24일</td>
+  <td class="hanja-old">則(법칙 칙)</td>
+  <td class="hanja-new">主(주인 주)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>25일</td>
+  <td class="hanja-old">律(법 률)</td>
+  <td class="hanja-new">君(임금 군)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>26일</td>
+  <td class="hanja-old">規(법 규)</td>
+  <td class="hanja-new">依(의지할 의)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>11월</td>
+  <td>27일</td>
+  <td class="hanja-old">效(본받을 효)</td>
+  <td class="hanja-new">患(근심 환)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="month-header-row"><td colspan="5">📅 12월 (성장)</td></tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>1일</td>
+  <td class="hanja-old">成(이룰 성)</td>
+  <td class="hanja-new">興(일어날 흥)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>3일</td>
+  <td class="hanja-old">進(나아갈 진)</td>
+  <td class="hanja-new">生(날 생)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>4일</td>
+  <td class="hanja-old">發(필 발)</td>
+  <td class="hanja-new">厚(두터울 후)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>5일</td>
+  <td class="hanja-old">展(펼 전)</td>
+  <td class="hanja-new">遠(멀 원)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>6일</td>
+  <td class="hanja-old">變(변할 변)</td>
+  <td class="hanja-new">幸(다행 행)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>7일</td>
+  <td class="hanja-old">達(통달할 달)</td>
+  <td class="hanja-new">吉(길할 길)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>8일</td>
+  <td class="hanja-old">起(일어날 기)</td>
+  <td class="hanja-new">乘(탈 승)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>11일</td>
+  <td class="hanja-old">改(고칠 개)</td>
+  <td class="hanja-new">揚(날릴 양)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>20일</td>
+  <td class="hanja-old">完(완전할 완)</td>
+  <td class="hanja-new">茂(무성할 무)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>21일</td>
+  <td class="hanja-old">開(열 개)</td>
+  <td class="hanja-new">活(살 활)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>23일</td>
+  <td class="hanja-old">強(강할 강)</td>
+  <td class="hanja-new">滿(찰 만)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>24일</td>
+  <td class="hanja-old">能(능할 능)</td>
+  <td class="hanja-new">偉(위대할 위)</td>
+  <td class="note-cell"></td>
+</tr>
+<tr class="bg-replaced">
+  <td>12월</td>
+  <td>31일</td>
+  <td class="hanja-old">續(이을 속)</td>
+  <td class="hanja-new">洋(큰바다 양)</td>
+  <td class="note-cell"></td>
+</tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Section 2 -->
+  <div class="section">
+    <div class="section-title"><span class="sec-num">2</span> 검증 결과 요약</div>
+    <div class="verif-grid">
+      <div class="verif-card ok">
+        <div class="verif-icon">✅</div>
+        <div class="verif-label">중복 한자</div>
+        <div class="verif-val">0건</div>
+      </div>
+      <div class="verif-card ok">
+        <div class="verif-icon">✅</div>
+        <div class="verif-label">900자 범위 이탈</div>
+        <div class="verif-val">0건</div>
+      </div>
+      <div class="verif-card ok">
+        <div class="verif-icon">✅</div>
+        <div class="verif-label">빈 슬롯</div>
+        <div class="verif-val">0건</div>
+      </div>
+      <div class="verif-card ok">
+        <div class="verif-icon">✅</div>
+        <div class="verif-label">총 슬롯</div>
+        <div class="verif-val">366개</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 3 -->
+  <div class="section">
+    <div class="section-title"><span class="sec-num">3</span> 월별 최종 한자 목록</div>
+    <div class="legend" style="margin-bottom:20px;">
+      <div class="legend-item"><div class="legend-box" style="background:#e8f0fe;border-color:#90caf9;"></div> <span style="color:#1565c0;font-weight:700;">파란색 볼드</span> — 교체된 한자 (중복/불량)</div>
+    </div>
+    <details class="month-accordion">
+  <summary>1월 · 배움 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="배울 학">學<span class="char-reading">배울 학</span></span><span class="char-item " title="글월 문">文<span class="char-reading">글월 문</span></span><span class="char-item " title="알지">知<span class="char-reading">알지</span></span><span class="char-item " title="익힐 습">習<span class="char-reading">익힐 습</span></span><span class="char-item " title="가르칠 교">敎<span class="char-reading">가르칠 교</span></span><span class="char-item " title="학교 교">校<span class="char-reading">학교 교</span></span><span class="char-item " title="글 서">書<span class="char-reading">글 서</span></span><span class="char-item " title="물을 문">問<span class="char-reading">물을 문</span></span><span class="char-item " title="기록할 기">記<span class="char-reading">기록할 기</span></span><span class="char-item " title="읽을 독">讀<span class="char-reading">읽을 독</span></span><span class="char-item " title="갈 연">硏<span class="char-reading">갈 연</span></span><span class="char-item " title="연구할 구">究<span class="char-reading">연구할 구</span></span><span class="char-item " title="셀 계">計<span class="char-reading">셀 계</span></span><span class="char-item " title="생각할 고">考<span class="char-reading">생각할 고</span></span><span class="char-item " title="논할 론">論<span class="char-reading">논할 론</span></span><span class="char-item " title="익힐 강">講<span class="char-reading">익힐 강</span></span><span class="char-item " title="볼 시">視<span class="char-reading">볼 시</span></span><span class="char-item " title="들을 문">聞<span class="char-reading">들을 문</span></span><span class="char-item " title="말씀 어">語<span class="char-reading">말씀 어</span></span><span class="char-item " title="말씀 설">說<span class="char-reading">말씀 설</span></span><span class="char-item " title="알 식">識<span class="char-reading">알 식</span></span><span class="char-item " title="시험할 시">試<span class="char-reading">시험할 시</span></span><span class="char-item " title="법 식">式<span class="char-reading">법 식</span></span><span class="char-item " title="글 장">章<span class="char-reading">글 장</span></span><span class="char-item " title="붓 필">筆<span class="char-reading">붓 필</span></span><span class="char-item " title="법 전">典<span class="char-reading">법 전</span></span><span class="char-item " title="셀 수">數<span class="char-reading">셀 수</span></span><span class="char-item " title="다스릴 리">理<span class="char-reading">다스릴 리</span></span><span class="char-item " title="풀 해">解<span class="char-reading">풀 해</span></span><span class="char-item char-replaced" title="스승 사">師<span class="char-reading">스승 사</span></span><span class="char-item " title="제목 제">題<span class="char-reading">제목 제</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>2월 · 성실 <span class="day-count">(29일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="정성 성">誠<span class="char-reading">정성 성</span></span><span class="char-item " title="부지런할 근">勤<span class="char-reading">부지런할 근</span></span><span class="char-item char-replaced" title="힘쓸 로">勞<span class="char-reading">힘쓸 로</span></span><span class="char-item " title="힘쓸 면">勉<span class="char-reading">힘쓸 면</span></span><span class="char-item " title="닦을 수">修<span class="char-reading">닦을 수</span></span><span class="char-item " title="익힐 련">練<span class="char-reading">익힐 련</span></span><span class="char-item " title="가질지">持<span class="char-reading">가질지</span></span><span class="char-item " title="지킬 수">守<span class="char-reading">지킬 수</span></span><span class="char-item " title="항상 상">常<span class="char-reading">항상 상</span></span><span class="char-item " title="이을 속">續<span class="char-reading">이을 속</span></span><span class="char-item " title="깊을 심">深<span class="char-reading">깊을 심</span></span><span class="char-item " title="굳을 고">固<span class="char-reading">굳을 고</span></span><span class="char-item " title="굳을 견">堅<span class="char-reading">굳을 견</span></span><span class="char-item " title="뿌리 근">根<span class="char-reading">뿌리 근</span></span><span class="char-item " title="오랠 구">久<span class="char-reading">오랠 구</span></span><span class="char-item " title="돌이킬 반">反<span class="char-reading">돌이킬 반</span></span><span class="char-item " title="나아갈 진">進<span class="char-reading">나아갈 진</span></span><span class="char-item " title="미칠 급">及<span class="char-reading">미칠 급</span></span><span class="char-item " title="급할 급">急<span class="char-reading">급할 급</span></span><span class="char-item " title="줄 급">給<span class="char-reading">줄 급</span></span><span class="char-item " title="이을 승">承<span class="char-reading">이을 승</span></span><span class="char-item " title="비로소 시">始<span class="char-reading">비로소 시</span></span><span class="char-item " title="마칠 종">終<span class="char-reading">마칠 종</span></span><span class="char-item " title="힘쓸 무">務<span class="char-reading">힘쓸 무</span></span><span class="char-item " title="따를 복">服<span class="char-reading">따를 복</span></span><span class="char-item " title="힘 력">力<span class="char-reading">힘 력</span></span><span class="char-item " title="행할 행">行<span class="char-reading">행할 행</span></span><span class="char-item " title="거둘 수">收<span class="char-reading">거둘 수</span></span><span class="char-item char-replaced" title="공 공">功<span class="char-reading">공 공</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>3월 · 정직 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="바를 정">正<span class="char-reading">바를 정</span></span><span class="char-item " title="곧을 직">直<span class="char-reading">곧을 직</span></span><span class="char-item " title="믿을 신">信<span class="char-reading">믿을 신</span></span><span class="char-item " title="곧을 정">貞<span class="char-reading">곧을 정</span></span><span class="char-item " title="깨끗할 정">淨<span class="char-reading">깨끗할 정</span></span><span class="char-item " title="옳을 시">是<span class="char-reading">옳을 시</span></span><span class="char-item " title="아닐 비">非<span class="char-reading">아닐 비</span></span><span class="char-item " title="옳을 의">義<span class="char-reading">옳을 의</span></span><span class="char-item " title="열매 실">實<span class="char-reading">열매 실</span></span><span class="char-item " title="이름 명">名<span class="char-reading">이름 명</span></span><span class="char-item " title="밝을 명">明<span class="char-reading">밝을 명</span></span><span class="char-item " title="겉 표">表<span class="char-reading">겉 표</span></span><span class="char-item " title="나타날 현">現<span class="char-reading">나타날 현</span></span><span class="char-item " title="증거 증">證<span class="char-reading">증거 증</span></span><span class="char-item " title="맺을 약">約<span class="char-reading">맺을 약</span></span><span class="char-item " title="판단할 판">判<span class="char-reading">판단할 판</span></span><span class="char-item " title="다를 별">別<span class="char-reading">다를 별</span></span><span class="char-item " title="참 진">眞<span class="char-reading">참 진</span></span><span class="char-item " title="알 인">認<span class="char-reading">알 인</span></span><span class="char-item " title="도장 인">印<span class="char-reading">도장 인</span></span><span class="char-item " title="알릴 고">告<span class="char-reading">알릴 고</span></span><span class="char-item " title="근원 원">原<span class="char-reading">근원 원</span></span><span class="char-item " title="말미암을 유">由<span class="char-reading">말미암을 유</span></span><span class="char-item char-replaced" title="깨끗할 결">潔<span class="char-reading">깨끗할 결</span></span><span class="char-item char-replaced" title="본디 소">素<span class="char-reading">본디 소</span></span><span class="char-item " title="살필 찰">察<span class="char-reading">살필 찰</span></span><span class="char-item " title="공평할 공">公<span class="char-reading">공평할 공</span></span><span class="char-item " title="평평할 평">平<span class="char-reading">평평할 평</span></span><span class="char-item " title="고를 균">均<span class="char-reading">고를 균</span></span><span class="char-item " title="고칠 개">改<span class="char-reading">고칠 개</span></span><span class="char-item char-replaced" title="맑을 청">淸<span class="char-reading">맑을 청</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>4월 · 존중 <span class="day-count">(30일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="높일 존">尊<span class="char-reading">높일 존</span></span><span class="char-item " title="공경할 경">敬<span class="char-reading">공경할 경</span></span><span class="char-item " title="예도 례">禮<span class="char-reading">예도 례</span></span><span class="char-item " title="어질 인">仁<span class="char-reading">어질 인</span></span><span class="char-item " title="덕 덕">德<span class="char-reading">덕 덕</span></span><span class="char-item " title="사랑 애">愛<span class="char-reading">사랑 애</span></span><span class="char-item " title="화목할 화">和<span class="char-reading">화목할 화</span></span><span class="char-item " title="사양할 양">讓<span class="char-reading">사양할 양</span></span><span class="char-item " title="먼저 선">先<span class="char-reading">먼저 선</span></span><span class="char-item " title="착할 선">善<span class="char-reading">착할 선</span></span><span class="char-item " title="아름다울 미">美<span class="char-reading">아름다울 미</span></span><span class="char-item " title="친할 친">親<span class="char-reading">친할 친</span></span><span class="char-item " title="효도 효">孝<span class="char-reading">효도 효</span></span><span class="char-item " title="본받을 효">效<span class="char-reading">본받을 효</span></span><span class="char-item " title="은혜 혜">惠<span class="char-reading">은혜 혜</span></span><span class="char-item " title="은혜 은">恩<span class="char-reading">은혜 은</span></span><span class="char-item " title="어질 현">賢<span class="char-reading">어질 현</span></span><span class="char-item " title="도울 협">協<span class="char-reading">도울 협</span></span><span class="char-item " title="순할 순">順<span class="char-reading">순할 순</span></span><span class="char-item " title="맑을 숙">淑<span class="char-reading">맑을 숙</span></span><span class="char-item " title="부드러울 유">柔<span class="char-reading">부드러울 유</span></span><span class="char-item " title="높을 숭">崇<span class="char-reading">높을 숭</span></span><span class="char-item " title="기다릴 대">待<span class="char-reading">기다릴 대</span></span><span class="char-item " title="대할 대">對<span class="char-reading">대할 대</span></span><span class="char-item " title="이을 접">接<span class="char-reading">이을 접</span></span><span class="char-item " title="사귈 교">交<span class="char-reading">사귈 교</span></span><span class="char-item " title="모일 회">會<span class="char-reading">모일 회</span></span><span class="char-item " title="모일 집">集<span class="char-reading">모일 집</span></span><span class="char-item " title="벗 우">友<span class="char-reading">벗 우</span></span><span class="char-item char-replaced" title="받들 봉">奉<span class="char-reading">받들 봉</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>5월 · 공감 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="함께 공">共<span class="char-reading">함께 공</span></span><span class="char-item " title="느낄 감">感<span class="char-reading">느낄 감</span></span><span class="char-item " title="뜻 정">情<span class="char-reading">뜻 정</span></span><span class="char-item " title="마음 심">心<span class="char-reading">마음 심</span></span><span class="char-item " title="뜻 의">意<span class="char-reading">뜻 의</span></span><span class="char-item " title="생각 사">思<span class="char-reading">생각 사</span></span><span class="char-item " title="슬플 비">悲<span class="char-reading">슬플 비</span></span><span class="char-item " title="기쁠 희">喜<span class="char-reading">기쁠 희</span></span><span class="char-item " title="근심 우">憂<span class="char-reading">근심 우</span></span><span class="char-item " title="성낼 노">怒<span class="char-reading">성낼 노</span></span><span class="char-item " title="슬플 애">哀<span class="char-reading">슬플 애</span></span><span class="char-item " title="즐거울 락">樂<span class="char-reading">즐거울 락</span></span><span class="char-item " title="근심 수">愁<span class="char-reading">근심 수</span></span><span class="char-item " title="생각 념">念<span class="char-reading">생각 념</span></span><span class="char-item " title="생각 상">想<span class="char-reading">생각 상</span></span><span class="char-item " title="응할 응">應<span class="char-reading">응할 응</span></span><span class="char-item " title="더불 여">與<span class="char-reading">더불 여</span></span><span class="char-item " title="같을 동">同<span class="char-reading">같을 동</span></span><span class="char-item " title="따뜻할 온">溫<span class="char-reading">따뜻할 온</span></span><span class="char-item char-replaced" title="기쁠 열">悅<span class="char-reading">기쁠 열</span></span><span class="char-item char-replaced" title="만날 우">遇<span class="char-reading">만날 우</span></span><span class="char-item " title="말씀 화">話<span class="char-reading">말씀 화</span></span><span class="char-item " title="통할 통">通<span class="char-reading">통할 통</span></span><span class="char-item " title="전할 전">傳<span class="char-reading">전할 전</span></span><span class="char-item char-replaced" title="받을 수">受<span class="char-reading">받을 수</span></span><span class="char-item " title="얼굴 용/받아들일 용">容<span class="char-reading">얼굴 용/받아들일 용</span></span><span class="char-item char-replaced" title="따뜻할 난">暖<span class="char-reading">따뜻할 난</span></span><span class="char-item " title="참을 인">忍<span class="char-reading">참을 인</span></span><span class="char-item " title="사랑할 자">慈<span class="char-reading">사랑할 자</span></span><span class="char-item char-replaced" title="기쁠 환">歡<span class="char-reading">기쁠 환</span></span><span class="char-item char-replaced" title="우러를 앙">仰<span class="char-reading">우러를 앙</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>6월 · 도전 <span class="day-count">(30일)</span></summary>
+  <div class="char-grid"><span class="char-item char-replaced" title="씩씩할 장">壯<span class="char-reading">씩씩할 장</span></span><span class="char-item " title="싸울 전">戰<span class="char-reading">싸울 전</span></span><span class="char-item " title="용기 용">勇<span class="char-reading">용기 용</span></span><span class="char-item " title="감히 감">敢<span class="char-reading">감히 감</span></span><span class="char-item " title="능할 능">能<span class="char-reading">능할 능</span></span><span class="char-item " title="일어날 기">起<span class="char-reading">일어날 기</span></span><span class="char-item " title="움직일 동">動<span class="char-reading">움직일 동</span></span><span class="char-item " title="이길 승">勝<span class="char-reading">이길 승</span></span><span class="char-item " title="던질 투">投<span class="char-reading">던질 투</span></span><span class="char-item char-replaced" title="기운 기">氣<span class="char-reading">기운 기</span></span><span class="char-item char-replaced" title="뜻 지">志<span class="char-reading">뜻 지</span></span><span class="char-item " title="변할 변">變<span class="char-reading">변할 변</span></span><span class="char-item " title="열 개">開<span class="char-reading">열 개</span></span><span class="char-item " title="필 발">發<span class="char-reading">필 발</span></span><span class="char-item " title="통달할 달">達<span class="char-reading">통달할 달</span></span><span class="char-item " title="오를 등">登<span class="char-reading">오를 등</span></span><span class="char-item char-replaced" title="기약할 기">期<span class="char-reading">기약할 기</span></span><span class="char-item " title="날 비">飛<span class="char-reading">날 비</span></span><span class="char-item " title="깨뜨릴 파">破<span class="char-reading">깨뜨릴 파</span></span><span class="char-item char-replaced" title="들 거">擧<span class="char-reading">들 거</span></span><span class="char-item " title="다툴 경">競<span class="char-reading">다툴 경</span></span><span class="char-item char-replaced" title="나갈 출">出<span class="char-reading">나갈 출</span></span><span class="char-item char-replaced" title="구할 구">求<span class="char-reading">구할 구</span></span><span class="char-item char-replaced" title="나아갈 취">就<span class="char-reading">나아갈 취</span></span><span class="char-item char-replaced" title="대적할 적">敵<span class="char-reading">대적할 적</span></span><span class="char-item " title="찾을 탐">探<span class="char-reading">찾을 탐</span></span><span class="char-item char-replaced" title="붉을 적">赤<span class="char-reading">붉을 적</span></span><span class="char-item " title="바꿀 혁">革<span class="char-reading">바꿀 혁</span></span><span class="char-item char-replaced" title="앞 전">前<span class="char-reading">앞 전</span></span><span class="char-item char-replaced" title="결단할 결">決<span class="char-reading">결단할 결</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>7월 · 공정 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item char-replaced" title="법도 도">度<span class="char-reading">법도 도</span></span><span class="char-item char-replaced" title="명령할 령">令<span class="char-reading">명령할 령</span></span><span class="char-item char-replaced" title="길 도">道<span class="char-reading">길 도</span></span><span class="char-item char-replaced" title="거느릴 통">統<span class="char-reading">거느릴 통</span></span><span class="char-item " title="법 법">法<span class="char-reading">법 법</span></span><span class="char-item " title="법칙 칙">則<span class="char-reading">법칙 칙</span></span><span class="char-item " title="법 률">律<span class="char-reading">법 률</span></span><span class="char-item " title="정사 정">政<span class="char-reading">정사 정</span></span><span class="char-item " title="다스릴 치">治<span class="char-reading">다스릴 치</span></span><span class="char-item char-replaced" title="한정할 한">限<span class="char-reading">한정할 한</span></span><span class="char-item " title="견줄 비">比<span class="char-reading">견줄 비</span></span><span class="char-item char-replaced" title="마디 절">節<span class="char-reading">마디 절</span></span><span class="char-item char-replaced" title="방위 방">方<span class="char-reading">방위 방</span></span><span class="char-item " title="헤아릴 량">量<span class="char-reading">헤아릴 량</span></span><span class="char-item char-replaced" title="본보기 례">例<span class="char-reading">본보기 례</span></span><span class="char-item char-replaced" title="형벌 형">刑<span class="char-reading">형벌 형</span></span><span class="char-item char-replaced" title="허물 죄">罪<span class="char-reading">허물 죄</span></span><span class="char-item char-replaced" title="금할 금">禁<span class="char-reading">금할 금</span></span><span class="char-item char-replaced" title="상줄 상">賞<span class="char-reading">상줄 상</span></span><span class="char-item char-replaced" title="엄할 엄">嚴<span class="char-reading">엄할 엄</span></span><span class="char-item char-replaced" title="잘못할 오">誤<span class="char-reading">잘못할 오</span></span><span class="char-item char-replaced" title="벼슬 관">官<span class="char-reading">벼슬 관</span></span><span class="char-item " title="합할 합">合<span class="char-reading">합할 합</span></span><span class="char-item char-replaced" title="백성 민">民<span class="char-reading">백성 민</span></span><span class="char-item char-replaced" title="따를 종">從<span class="char-reading">따를 종</span></span><span class="char-item " title="권리 권">權<span class="char-reading">권리 권</span></span><span class="char-item char-replaced" title="권할 권">勸<span class="char-reading">권할 권</span></span><span class="char-item " title="나눌 분">分<span class="char-reading">나눌 분</span></span><span class="char-item " title="같을 등">等<span class="char-reading">같을 등</span></span><span class="char-item " title="차례 서">序<span class="char-reading">차례 서</span></span><span class="char-item " title="마땅할 당">當<span class="char-reading">마땅할 당</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>8월 · 성찰 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="살필 성">省<span class="char-reading">살필 성</span></span><span class="char-item char-replaced" title="볼 간">看<span class="char-reading">볼 간</span></span><span class="char-item " title="깨달을 오">悟<span class="char-reading">깨달을 오</span></span><span class="char-item char-replaced" title="저녁 석">夕<span class="char-reading">저녁 석</span></span><span class="char-item char-replaced" title="잊을 망">忘<span class="char-reading">잊을 망</span></span><span class="char-item char-replaced" title="바랄 망">望<span class="char-reading">바랄 망</span></span><span class="char-item char-replaced" title="옛 고">古<span class="char-reading">옛 고</span></span><span class="char-item char-replaced" title="일 사">事<span class="char-reading">일 사</span></span><span class="char-item char-replaced" title="때 시">時<span class="char-reading">때 시</span></span><span class="char-item " title="안 내">內<span class="char-reading">안 내</span></span><span class="char-item char-replaced" title="저물 모">暮<span class="char-reading">저물 모</span></span><span class="char-item char-replaced" title="밤 야">夜<span class="char-reading">밤 야</span></span><span class="char-item char-replaced" title="옛 석">昔<span class="char-reading">옛 석</span></span><span class="char-item char-replaced" title="연고 고">故<span class="char-reading">연고 고</span></span><span class="char-item char-replaced" title="갈 왕">往<span class="char-reading">갈 왕</span></span><span class="char-item char-replaced" title="예 구">舊<span class="char-reading">예 구</span></span><span class="char-item " title="밀 추">推<span class="char-reading">밀 추</span></span><span class="char-item char-replaced" title="자세할 정">精<span class="char-reading">자세할 정</span></span><span class="char-item char-replaced" title="가늘 세">細<span class="char-reading">가늘 세</span></span><span class="char-item char-replaced" title="생각할 억">憶<span class="char-reading">생각할 억</span></span><span class="char-item char-replaced" title="돌아올 회">回<span class="char-reading">돌아올 회</span></span><span class="char-item " title="스스로 자">自<span class="char-reading">스스로 자</span></span><span class="char-item char-replaced" title="돌아올 복">復<span class="char-reading">돌아올 복</span></span><span class="char-item " title="고요할 정">靜<span class="char-reading">고요할 정</span></span><span class="char-item char-replaced" title="성품 성">性<span class="char-reading">성품 성</span></span><span class="char-item " title="볼 관">觀<span class="char-reading">볼 관</span></span><span class="char-item char-replaced" title="목숨 명">命<span class="char-reading">목숨 명</span></span><span class="char-item char-replaced" title="지낼 력">歷<span class="char-reading">지낼 력</span></span><span class="char-item char-replaced" title="쓸 고">苦<span class="char-reading">쓸 고</span></span><span class="char-item " title="몸 체">體<span class="char-reading">몸 체</span></span><span class="char-item " title="얻을 득">得<span class="char-reading">얻을 득</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>9월 · 다양성 <span class="day-count">(30일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="많을 다">多<span class="char-reading">많을 다</span></span><span class="char-item char-replaced" title="곳 처">處<span class="char-reading">곳 처</span></span><span class="char-item " title="다를 이">異<span class="char-reading">다를 이</span></span><span class="char-item char-replaced" title="자리 위">位<span class="char-reading">자리 위</span></span><span class="char-item " title="각각 각">各<span class="char-reading">각각 각</span></span><span class="char-item " title="씨 종">種<span class="char-reading">씨 종</span></span><span class="char-item " title="일만 만">萬<span class="char-reading">일만 만</span></span><span class="char-item char-replaced" title="고를 조">調<span class="char-reading">고를 조</span></span><span class="char-item " title="무리 중">衆<span class="char-reading">무리 중</span></span><span class="char-item char-replaced" title="길 로">路<span class="char-reading">길 로</span></span><span class="char-item " title="겨레 족">族<span class="char-reading">겨레 족</span></span><span class="char-item char-replaced" title="놀 유">遊<span class="char-reading">놀 유</span></span><span class="char-item " title="물건 품">品<span class="char-reading">물건 품</span></span><span class="char-item char-replaced" title="나그네 려">旅<span class="char-reading">나그네 려</span></span><span class="char-item char-replaced" title="고향 향">鄕<span class="char-reading">고향 향</span></span><span class="char-item " title="넓을 광">廣<span class="char-reading">넓을 광</span></span><span class="char-item " title="펼 전">展<span class="char-reading">펼 전</span></span><span class="char-item char-replaced" title="이로울 리">利<span class="char-reading">이로울 리</span></span><span class="char-item " title="낱 개">個<span class="char-reading">낱 개</span></span><span class="char-item " title="다를 타">他<span class="char-reading">다를 타</span></span><span class="char-item char-replaced" title="흩어질 산">散<span class="char-reading">흩어질 산</span></span><span class="char-item char-replaced" title="풍년 풍">豐<span class="char-reading">풍년 풍</span></span><span class="char-item char-replaced" title="빛 색">色<span class="char-reading">빛 색</span></span><span class="char-item char-replaced" title="향기 향">香<span class="char-reading">향기 향</span></span><span class="char-item char-replaced" title="섞일 혼">混<span class="char-reading">섞일 혼</span></span><span class="char-item " title="흐를 류">流<span class="char-reading">흐를 류</span></span><span class="char-item char-replaced" title="홀로 독">獨<span class="char-reading">홀로 독</span></span><span class="char-item char-replaced" title="재주 예">藝<span class="char-reading">재주 예</span></span><span class="char-item char-replaced" title="풍속 속">俗<span class="char-reading">풍속 속</span></span><span class="char-item char-replaced" title="귀할 귀">貴<span class="char-reading">귀할 귀</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>10월 · 소통 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item char-replaced" title="소리 성">聲<span class="char-reading">소리 성</span></span><span class="char-item " title="말씀 언">言<span class="char-reading">말씀 언</span></span><span class="char-item char-replaced" title="소리 음">音<span class="char-reading">소리 음</span></span><span class="char-item char-replaced" title="물댈 주">注<span class="char-reading">물댈 주</span></span><span class="char-item " title="말씀 담">談<span class="char-reading">말씀 담</span></span><span class="char-item char-replaced" title="부를 초">招<span class="char-reading">부를 초</span></span><span class="char-item char-replaced" title="도울 조">助<span class="char-reading">도울 조</span></span><span class="char-item " title="의논할 의">議<span class="char-reading">의논할 의</span></span><span class="char-item " title="알릴 보">報<span class="char-reading">알릴 보</span></span><span class="char-item " title="대답할 답">答<span class="char-reading">대답할 답</span></span><span class="char-item char-replaced" title="가리킬 지">指<span class="char-reading">가리킬 지</span></span><span class="char-item char-replaced" title="맞이할 영">迎<span class="char-reading">맞이할 영</span></span><span class="char-item char-replaced" title="노래 가">歌<span class="char-reading">노래 가</span></span><span class="char-item char-replaced" title="웃을 소">笑<span class="char-reading">웃을 소</span></span><span class="char-item char-replaced" title="글 시">詩<span class="char-reading">글 시</span></span><span class="char-item char-replaced" title="그림 화">畫<span class="char-reading">그림 화</span></span><span class="char-item " title="보일 시">示<span class="char-reading">보일 시</span></span><span class="char-item char-replaced" title="글자 자">字<span class="char-reading">글자 자</span></span><span class="char-item " title="부를 호">呼<span class="char-reading">부를 호</span></span><span class="char-item char-replaced" title="책 책">冊<span class="char-reading">책 책</span></span><span class="char-item " title="보낼 송">送<span class="char-reading">보낼 송</span></span><span class="char-item " title="들을 청">聽<span class="char-reading">들을 청</span></span><span class="char-item char-replaced" title="종이 지">紙<span class="char-reading">종이 지</span></span><span class="char-item char-replaced" title="가르칠 훈">訓<span class="char-reading">가르칠 훈</span></span><span class="char-item char-replaced" title="창성할 창">昌<span class="char-reading">창성할 창</span></span><span class="char-item char-replaced" title="상쾌할 쾌">快<span class="char-reading">상쾌할 쾌</span></span><span class="char-item char-replaced" title="뜨거울 열">熱<span class="char-reading">뜨거울 열</span></span><span class="char-item char-replaced" title="빛 광">光<span class="char-reading">빛 광</span></span><span class="char-item char-replaced" title="어질 량">良<span class="char-reading">어질 량</span></span><span class="char-item char-replaced" title="이름 호">號<span class="char-reading">이름 호</span></span><span class="char-item " title="이을 련">連<span class="char-reading">이을 련</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>11월 · 책임 <span class="day-count">(30일)</span></summary>
+  <div class="char-grid"><span class="char-item " title="꾸짖을 책">責<span class="char-reading">꾸짖을 책</span></span><span class="char-item char-replaced" title="다할 진">盡<span class="char-reading">다할 진</span></span><span class="char-item char-replaced" title="충성 충">忠<span class="char-reading">충성 충</span></span><span class="char-item char-replaced" title="무거울 중">重<span class="char-reading">무거울 중</span></span><span class="char-item char-replaced" title="항상 항">恒<span class="char-reading">항상 항</span></span><span class="char-item char-replaced" title="잡을 집">執<span class="char-reading">잡을 집</span></span><span class="char-item char-replaced" title="인륜 륜">倫<span class="char-reading">인륜 륜</span></span><span class="char-item char-replaced" title="벼슬 사">仕<span class="char-reading">벼슬 사</span></span><span class="char-item " title="지킬 보">保<span class="char-reading">지킬 보</span></span><span class="char-item " title="있을 존">存<span class="char-reading">있을 존</span></span><span class="char-item char-replaced" title="하여금 사">使<span class="char-reading">하여금 사</span></span><span class="char-item char-replaced" title="이룰 치">致<span class="char-reading">이룰 치</span></span><span class="char-item char-replaced" title="베풀 시">施<span class="char-reading">베풀 시</span></span><span class="char-item char-replaced" title="이를 지">至<span class="char-reading">이를 지</span></span><span class="char-item " title="정할 정">定<span class="char-reading">정할 정</span></span><span class="char-item char-replaced" title="세상 세">世<span class="char-reading">세상 세</span></span><span class="char-item char-replaced" title="갖출 비">備<span class="char-reading">갖출 비</span></span><span class="char-item " title="완전할 완">完<span class="char-reading">완전할 완</span></span><span class="char-item " title="온전할 전">全<span class="char-reading">온전할 전</span></span><span class="char-item char-replaced" title="위엄 위">威<span class="char-reading">위엄 위</span></span><span class="char-item " title="반드시 필">必<span class="char-reading">반드시 필</span></span><span class="char-item " title="중요할 요">要<span class="char-reading">중요할 요</span></span><span class="char-item char-replaced" title="붉을 단">丹<span class="char-reading">붉을 단</span></span><span class="char-item char-replaced" title="주인 주">主<span class="char-reading">주인 주</span></span><span class="char-item char-replaced" title="임금 군">君<span class="char-reading">임금 군</span></span><span class="char-item char-replaced" title="의지할 의">依<span class="char-reading">의지할 의</span></span><span class="char-item char-replaced" title="근심 환">患<span class="char-reading">근심 환</span></span><span class="char-item " title="맺을 결">結<span class="char-reading">맺을 결</span></span><span class="char-item " title="열매 과">果<span class="char-reading">열매 과</span></span><span class="char-item " title="이룰 성">成<span class="char-reading">이룰 성</span></span></div>
+</details>
+<details class="month-accordion">
+  <summary>12월 · 성장 <span class="day-count">(31일)</span></summary>
+  <div class="char-grid"><span class="char-item char-replaced" title="일어날 흥">興<span class="char-reading">일어날 흥</span></span><span class="char-item " title="자랄 장">長<span class="char-reading">자랄 장</span></span><span class="char-item char-replaced" title="날 생">生<span class="char-reading">날 생</span></span><span class="char-item char-replaced" title="두터울 후">厚<span class="char-reading">두터울 후</span></span><span class="char-item char-replaced" title="멀 원">遠<span class="char-reading">멀 원</span></span><span class="char-item char-replaced" title="다행 행">幸<span class="char-reading">다행 행</span></span><span class="char-item char-replaced" title="길할 길">吉<span class="char-reading">길할 길</span></span><span class="char-item char-replaced" title="탈 승">乘<span class="char-reading">탈 승</span></span><span class="char-item " title="더할 증">增<span class="char-reading">더할 증</span></span><span class="char-item " title="더할 가">加<span class="char-reading">더할 가</span></span><span class="char-item char-replaced" title="날릴 양">揚<span class="char-reading">날릴 양</span></span><span class="char-item " title="새 신">新<span class="char-reading">새 신</span></span><span class="char-item " title="꽃부리 영">英<span class="char-reading">꽃부리 영</span></span><span class="char-item " title="영화 영">榮<span class="char-reading">영화 영</span></span><span class="char-item " title="성할 성">盛<span class="char-reading">성할 성</span></span><span class="char-item " title="기를 육">育<span class="char-reading">기를 육</span></span><span class="char-item " title="기를 양">養<span class="char-reading">기를 양</span></span><span class="char-item " title="세울 건">建<span class="char-reading">세울 건</span></span><span class="char-item " title="설 립">立<span class="char-reading">설 립</span></span><span class="char-item char-replaced" title="무성할 무">茂<span class="char-reading">무성할 무</span></span><span class="char-item char-replaced" title="살 활">活<span class="char-reading">살 활</span></span><span class="char-item " title="높을 고">高<span class="char-reading">높을 고</span></span><span class="char-item char-replaced" title="찰 만">滿<span class="char-reading">찰 만</span></span><span class="char-item char-replaced" title="위대할 위">偉<span class="char-reading">위대할 위</span></span><span class="char-item " title="부유할 부">富<span class="char-reading">부유할 부</span></span><span class="char-item " title="다할 극">極<span class="char-reading">다할 극</span></span><span class="char-item " title="찰 충">充<span class="char-reading">찰 충</span></span><span class="char-item " title="더할 익">益<span class="char-reading">더할 익</span></span><span class="char-item " title="향할 향">向<span class="char-reading">향할 향</span></span><span class="char-item " title="바랄 희">希<span class="char-reading">바랄 희</span></span><span class="char-item char-replaced" title="큰바다 양">洋<span class="char-reading">큰바다 양</span></span></div>
+</details>
+
+  </div>
+
+</div>
+</div>
+
+<script>
+// 섹션 전환
+function showSection(n) {
+  document.querySelectorAll('.section-content').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  document.querySelectorAll('.section-tab').forEach(function(el) {
+    el.classList.remove('active');
+  });
+  document.getElementById('sec' + n).classList.add('active');
+  // 탭 버튼 순서: [0]=검증리포트(sec2), [1]=주제검토(sec1)
+  var btnIdx = n === 2 ? 0 : 1;
+  document.querySelectorAll('.section-tab')[btnIdx].classList.add('active');
+}
+
+// 주제검토 월 전환 (파일1의 show() → showGuideMonth())
+function showGuideMonth(i) {
+  document.querySelectorAll(".ms").forEach(function(e) { e.classList.remove("active"); });
+  document.querySelectorAll(".tab").forEach(function(e) { e.classList.remove("active"); });
+  document.getElementById("m" + i).classList.add("active");
+  document.getElementById("t" + i).classList.add("active");
+}
+</script>
+</body>
+</html>
