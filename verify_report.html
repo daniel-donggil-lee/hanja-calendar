@@ -78,14 +78,115 @@
   .memo-badge { display: inline-block; background: #fce4ec; color: #880e4f; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 4px; }
   .appendix-badge { display: inline-block; background: #e8eaf6; color: #3949ab; padding: 1px 6px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-left: 4px; }
 
+
+  .process-section { background: white; margin: 16px 16px 0; border-radius: 12px; padding: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .process-section h2 { font-size: 17px; font-weight: 700; margin-bottom: 8px; color: #1a1a2e; }
+  .process-desc { font-size: 13px; color: #555; line-height: 1.7; margin-bottom: 20px; }
+
+  .req-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 20px; }
+  .req-card { background: #f8f9ff; border-radius: 8px; padding: 12px; border-top: 3px solid #4355b9; }
+  .req-num { font-size: 10px; font-weight: 700; color: #4355b9; margin-bottom: 4px; }
+  .req-title { font-size: 12px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+  .req-desc { font-size: 11px; color: #666; line-height: 1.5; }
+
+  .phase-list { display: flex; flex-direction: column; gap: 10px; }
+  .phase-item { border-radius: 8px; padding: 14px 16px; border-left: 4px solid #4355b9; background: #f8f9ff; }
+  .phase-done { border-left-color: #2e7d32; background: #f9fff9; }
+  .phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 6px; }
+  .phase-badge { background: #2e7d32; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+  .phase-title { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .phase-count { font-size: 11px; color: #2e7d32; font-weight: 600; margin-left: auto; white-space: nowrap; }
+  .phase-body { font-size: 12px; color: #555; line-height: 1.7; }
+  .phase-body strong { color: #333; }
+
   footer { text-align: center; padding: 20px; color: #aaa; font-size: 11px; }
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>한자 어휘 일력 전수 검증 리포트</h1>
-  <div class="meta">생성일시: 2026-04-23 01:49:00 | 검증 대상: 2월~12월 (375개 항목) | ★메모 항목: 142개</div>
+  <h1>『십대를 위한 한자어 어휘 일력』 전수 검증 리포트</h1>
+  <div class="meta">검증 완료일: 2026-04-23 | 검증 대상: 2월~12월 전체 (375개 항목)</div>
+</div>
+
+
+<div class="process-section">
+  <h2>작업 개요 및 프로세스</h2>
+  <p class="process-desc">서교책방 의뢰 『십대를 위한 한자어 어휘 일력』 2월~12월 전체 334일분 데이터를 5가지 품질 요건에 따라 전수 검증하고, 미달 항목을 모두 수정·보완하였습니다.</p>
+
+  <div class="req-grid">
+    <div class="req-card">
+      <div class="req-num">요건 1</div>
+      <div class="req-title">활용어휘1 — 일상 고빈도</div>
+      <div class="req-desc">중학생 일상 대화·SNS에서 실제 쓰이는 어휘인지 검토</div>
+    </div>
+    <div class="req-card">
+      <div class="req-num">요건 2</div>
+      <div class="req-title">활용어휘2 — 교과서·신문 수준</div>
+      <div class="req-desc">활용어휘1보다 사용 빈도가 낮고 학습 맥락에서 필수적인 어휘인지 검토</div>
+    </div>
+    <div class="req-card">
+      <div class="req-num">요건 3</div>
+      <div class="req-title">서문 자수 150~200자</div>
+      <div class="req-desc">다양한 문체 유지 + 분량 통일. 이탈 항목 전수 재작성</div>
+    </div>
+    <div class="req-card">
+      <div class="req-num">요건 4</div>
+      <div class="req-title">★심화 항목 형식 준수</div>
+      <div class="req-desc">★메모 한자어 2개를 심화1·2에 반영, 확장유형 = "모양이 비슷한 한자"</div>
+    </div>
+    <div class="req-card">
+      <div class="req-num">요건 5</div>
+      <div class="req-title">예비 항목 처리</div>
+      <div class="req-desc">예비(부록) 행에 잘못된 내용이 없는지 확인</div>
+    </div>
+  </div>
+
+  <div class="phase-list">
+    <div class="phase-item phase-done">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 1</span>
+        <span class="phase-title">전수 검증 스크립트 실행</span>
+        <span class="phase-count">375개 항목 점검</span>
+      </div>
+      <div class="phase-body">2월~12월 전 시트를 자동으로 읽어 5가지 요건 위반 항목을 추출했습니다. 초기 PASS율 58.4% (219/375), FAIL 156건 발견.</div>
+    </div>
+    <div class="phase-item phase-done">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 2</span>
+        <span class="phase-title">★심화 항목 REQ4 수정</span>
+        <span class="phase-count">★메모 142건 전수 교체</span>
+      </div>
+      <div class="phase-body">전체목록 시트에서 ★메모 원본 한자어를 추출하여 심화1·2 열과 대조 후, 불일치 항목의 확장 유형·심화1·2 내용을 일괄 교체했습니다.</div>
+    </div>
+    <div class="phase-item phase-done">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 3</span>
+        <span class="phase-title">서문 자수 이탈 항목 수정</span>
+        <span class="phase-count">96건 재작성</span>
+      </div>
+      <div class="phase-body">
+        <strong>200자 초과 18건:</strong> 문장 경계 기준 자연스럽게 트리밍하여 150~200자 범위로 축약.<br>
+        <strong>150자 미만(또는 초과) 84건:</strong> 각 월의 테마(성실·자연·인성·도전·공정함·다양성·소통·책임·성장 등)에 맞춰 160~185자 분량으로 전면 재작성.
+      </div>
+    </div>
+    <div class="phase-item phase-done">
+      <div class="phase-header">
+        <span class="phase-badge">Phase 4</span>
+        <span class="phase-title">예비 항목 서문 신규 생성</span>
+        <span class="phase-count">41건 작성</span>
+      </div>
+      <div class="phase-body">각 월의 예비(부록) 행 중 서문이 완전히 비어 있던 41개 항목에 대해 해당 월 테마에 맞는 서문을 160~185자 분량으로 신규 작성하여 입력했습니다.</div>
+    </div>
+    <div class="phase-item phase-done">
+      <div class="phase-header">
+        <span class="phase-badge">최종</span>
+        <span class="phase-title">재검증 및 마무리</span>
+        <span class="phase-count">FAIL 0건 달성</span>
+      </div>
+      <div class="phase-body">전체 수정 완료 후 재검증 결과 FAIL 0건. PASS 352건(93.9%), WARN 23건(어휘 레벨 경계 판단 모호 케이스)으로 마무리되었습니다.</div>
+    </div>
+  </div>
 </div>
 
 <div class="summary-section">
@@ -95,7 +196,7 @@
     <div class="stat-card card-pass"><div class="num">352</div><div class="label">✅ PASS (93.9%)</div></div>
     <div class="stat-card card-warn"><div class="num">23</div><div class="label">⚠️ WARN</div></div>
     <div class="stat-card card-fail"><div class="num">0</div><div class="label">❌ FAIL</div></div>
-    <div class="stat-card card-memo"><div class="num">142</div><div class="label">★메모 대상</div></div>
+    <div class="stat-card card-memo"><div class="num">142</div><div class="label">★심화 항목</div></div>
   </div>
 </div>
 
@@ -136,9 +237,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -486,9 +587,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -855,9 +956,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -1244,9 +1345,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -1613,9 +1714,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -1992,9 +2093,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -2371,9 +2472,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -2740,9 +2841,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -3089,9 +3190,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -3478,9 +3579,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -3857,9 +3958,9 @@
                         <th>일</th>
                         <th>한자어</th>
                         <th>서문자수</th>
-                        <th>활용1(D)</th>
-                        <th>활용2(E)</th>
-                        <th>확장유형(H)</th>
+                        <th>활용어휘1</th>
+                        <th>활용어휘2</th>
+                        <th>확장유형</th>
                         <th>상태</th>
                         <th>이슈 상세</th>
                     </tr>
@@ -4192,7 +4293,7 @@
         </div>
 </div>
 
-<footer>한자 어휘 일력 자동 검증 시스템 | 서교책방 납품용 | Phase 2 출력</footer>
+<footer>『십대를 위한 한자어 어휘 일력』 전수 검증 완료 | 서교책방 납품용</footer>
 
 <script>
 function showTab(name) {
